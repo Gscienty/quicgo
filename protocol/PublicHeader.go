@@ -177,8 +177,48 @@ func (this *PublicHeader) GetConnectionSize () (size int) {
 	return
 }
 
+func (this *PublicHeader) SetConnectionSize (size int) (err error) {
+	switch size {
+	case 0:
+		this.flags = (this.flags & 0xF3) | PUBLIC_FLAG_CONNID_0BYTE
+		return
+	case 1:
+		this.flags = (this.flags & 0xF3) | PUBLIC_FLAG_CONNID_1BYTE
+		return
+	case 4:
+		this.flags = (this.flags & 0xF3) | PUBLIC_FLAG_CONNID_4BYTE
+		return
+	case 8:
+		this.flags = (this.flags & 0xF3) | PUBLIC_FLAG_CONNID_8BYTE
+		return
+	}
+
+	err = errors.New ("Set Connection Size: size error")
+	return
+}
+
 func (this *PublicHeader) GetPacketNumberSize () (size int) {
 	size = int ((this.flags >> 4) & 0x03)
+	return
+}
+
+func (this *PublicHeader) SetPacketNumberSize (size int) (err error) {
+	switch size {
+	case 1:
+		this.flags = (this.flags & 0xCF) | PUBLIC_FLAG_PACKNUM_1BYTE
+		return
+	case 2:
+		this.flags = (this.flags & 0xCF) | PUBLIC_FLAG_PACKNUM_2BYTE
+		return
+	case 4:
+		this.flags = (this.flags & 0xCF) | PUBLIC_FLAG_PACKNUM_4BYTE
+		return
+	case 6:
+		this.flags = (this.flags & 0xCF) | PUBLIC_FLAG_PACKNUM_6BYTE
+		return
+	}
+
+	err = errors.New ("Set PacketNumber Size: size error")
 	return
 }
 
@@ -187,7 +227,27 @@ func (this *PublicHeader) ExistVersion () (exist bool) {
 	return
 }
 
+func (this *PublicHeader) GetVersion () (version uint32) {
+	version = this.version
+	return
+}
+
+func (this *PublicHeader) SetVersion (version uint32) {
+	this.flags |= PUBLIC_FLAG_VERSION
+	this.version = version
+	return
+}
+
 func (this *PublicHeader) IsReset () (isReset bool) {
 	isReset = (this.flags & PUBLIC_FLAG_RESET) != 0
+	return
+}
+
+func (this *PublicHeader) SetReset (reset bool) {
+	if reset {
+		this.flags |= PUBLIC_FLAG_RESET
+	} else {
+		this.flags &= 0xFF ^ PUBLIC_FLAG_RESET
+	}
 	return
 }
