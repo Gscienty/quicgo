@@ -97,19 +97,32 @@ func (this *PublicHeader) Parse (data []byte) (size int, err error) {
 	return
 }
 
-func (this *PublicHeader) GetSerializedData (data []byte) (size int, err error) {
+func (this *PublicHeader) GetSerializedData (data []byte, isServer bool) (size int, err error) {
 	if this.IsReset () {
+		// special packet: reset packet
 		if len (data) < 9 {
 			err = errors.New ("QUIC PublicHeader serialize: data too small")
 			return
 		}
 
-		data[0] = PUBLIC_FLAG_RESET | PUBLIC_FLAG_CONNID_8BYTE;
+		data[0] = PUBLIC_FLAG_RESET | PUBLIC_FLAG_CONNID_8BYTE
+		binary.LittleEndian.PutUint64 (data[1:], uint64 (this.connectionID))
+		size = 9
+		return
+	} else if this.ExistVersion () && isServer {
+		// special packet: version negotiation packet
+		if len (data) < 9 {
+			err = errors.New ("QUIC PublicHeader serialize: data too small")
+			return
+		}
+
+		data[0] = PUBLIC_FLAG_VERSION | PUBLIC_FLAG_CONNID_8BYTE
 		binary.LittleEndian.PutUint64 (data[1:], uint64 (this.connectionID))
 		size = 9
 		return
 	}
 
+	// regular packet
 	if this.GetSerializedSize () > len (data) {
 		err = errors.New ("QUIC PublicHeader serialize: data too small")
 		return
