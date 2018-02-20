@@ -97,7 +97,7 @@ func (this *PublicHeader) Parse (data []byte) (size int, err error) {
 	return
 }
 
-func (this *PublicHeader) GetSerializedData (data []byte, isServer bool) (size int, err error) {
+func (this *PublicHeader) Serialize (data []byte, isServer bool) (size int, err error) {
 	if this.IsReset () {
 		// special packet: reset packet
 		if len (data) < 9 {
@@ -177,17 +177,16 @@ func (this *PublicHeader) GetSerializedData (data []byte, isServer bool) (size i
 	return
 }
 
-func (this *PublicHeader) GetSerializedSize () (size int) {
-	size = (1 + _parseConnectionIdSize[this.GetConnectionSize ()] + _parsePackectNumberSize[this.GetPacketNumberSize ()])
+func (this *PublicHeader) GetSerializedSize () int {
+	size := (1 + _parseConnectionIdSize[this.GetConnectionSize ()] + _parsePackectNumberSize[this.GetPacketNumberSize ()])
 	if this.flags & PUBLIC_FLAG_VERSION != 0 {
 		size += 4
 	}
-	return
+	return size
 }
 
-func (this *PublicHeader) GetConnectionSize () (size int) {
-	size = int ((this.flags >> 2) & 0x03)
-	return
+func (this *PublicHeader) GetConnectionSize () int {
+	return int ((this.flags >> 2) & 0x03)
 }
 
 func (this *PublicHeader) SetConnectionSize (size int) (err error) {
@@ -235,14 +234,12 @@ func (this *PublicHeader) SetPacketNumberSize (size int) (err error) {
 	return
 }
 
-func (this *PublicHeader) ExistVersion () (exist bool) {
-	exist = (this.flags & PUBLIC_FLAG_VERSION) != 0
-	return
+func (this *PublicHeader) ExistVersion () bool {
+	return (this.flags & PUBLIC_FLAG_VERSION) != 0
 }
 
-func (this *PublicHeader) GetVersion () (version uint32) {
-	version = this.version
-	return
+func (this *PublicHeader) GetVersion () uint32 {
+	return this.version
 }
 
 func (this *PublicHeader) SetVersion (version uint32) {
@@ -251,9 +248,8 @@ func (this *PublicHeader) SetVersion (version uint32) {
 	return
 }
 
-func (this *PublicHeader) IsReset () (isReset bool) {
-	isReset = (this.flags & PUBLIC_FLAG_RESET) != 0
-	return
+func (this *PublicHeader) IsReset () bool {
+	return (this.flags & PUBLIC_FLAG_RESET) != 0
 }
 
 func (this *PublicHeader) SetReset (reset bool) {
