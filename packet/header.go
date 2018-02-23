@@ -28,8 +28,10 @@ func (this *Header) Parse(data []byte) (size int, err error) {
 		size += 8
 		this.version = binary.BigEndian.Uint32 (data[size:])
 		size += 4
-		this.packetNumber = binary.BigEndian.Uint32 (data[size:])
-		size += 4
+		if this.packetType != 0 {
+			this.packetNumber = binary.BigEndian.Uint32 (data[size:])
+			size += 4
+		}
 
 		this.keyPhase = false
 		this.connIdOmitted = false
@@ -86,7 +88,7 @@ func (this *Header) Serialize (data []byte) (size int, err error) {
 		err = errors.New ("Header.Serialize error: data too small")
 		return
 	}
-	
+
 	if this.isLongHeader {
 		data[size] = 0x80 | this.packetType
 		size += 1
