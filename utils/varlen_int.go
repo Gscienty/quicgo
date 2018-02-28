@@ -6,10 +6,10 @@ import "encoding/binary"
 import "errors"
 
 const (
-	MAX_1BYTE_VALUE = 0x3F
-	MAX_2BYTE_VALUE = 0x3FFF
-	MAX_4BYTE_VALUE = 0x3FFFFFFF
-	MAX_8BYTE_VALUE = 0x3FFFFFFFFFFFFFFF
+	VARLENINT_MAX_1BYTE_VALUE = 0x3F
+	VARLENINT_MAX_2BYTE_VALUE = 0x3FFF
+	VARLENINT_MAX_4BYTE_VALUE = 0x3FFFFFFF
+	VARLENINT_MAX_8BYTE_VALUE = 0x3FFFFFFFFFFFFFFF
 )
 
 type VarLenInteger struct {
@@ -17,7 +17,7 @@ type VarLenInteger struct {
 	val uint64
 }
 
-func Parse (b io.Reader) (*VarLenInteger, error) {
+func VarLenIntegerParse (b io.Reader) (*VarLenInteger, error) {
 	byteBuf := make ([]byte, 1)
 	_, err := b.Read (byteBuf)
 	if err != nil {
@@ -62,17 +62,23 @@ func Parse (b io.Reader) (*VarLenInteger, error) {
 	return &VarLenInteger { len, val }, nil
 }
 
+func VarLenIntegerNew (val uint64) *VarLenInteger {
+	retval := &VarLenInteger { 0, 0 }
+	retval.SetVal (val)
+	return retval
+}
+
 func (this *VarLenInteger) SetVal (val uint64) (err error) {
-	if val < MAX_1BYTE_VALUE {
+	if val <= VARLENINT_MAX_1BYTE_VALUE {
 		this.val = val
 		this.len = 1
-	} else if val < MAX_2BYTE_VALUE {
+	} else if val <= VARLENINT_MAX_2BYTE_VALUE {
 		this.val = val
 		this.len = 2
-	} else if val < MAX_4BYTE_VALUE {
+	} else if val <= VARLENINT_MAX_4BYTE_VALUE {
 		this.val = val
 		this.len = 4
-	} else if val < MAX_8BYTE_VALUE {
+	} else if val <= VARLENINT_MAX_8BYTE_VALUE {
 		this.val = val
 		this.len = 8
 	} else {
