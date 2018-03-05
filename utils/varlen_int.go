@@ -17,7 +17,7 @@ type VarLenInteger struct {
 	val uint64
 }
 
-func VarLenIntegerParse (b io.Reader) (*VarLenInteger, error) {
+func (VarLenInteger) Parse (b io.Reader) (*VarLenInteger, error) {
 	byteBuf := make ([]byte, 1)
 	_, err := b.Read (byteBuf)
 	if err != nil {
@@ -62,7 +62,7 @@ func VarLenIntegerParse (b io.Reader) (*VarLenInteger, error) {
 	return &VarLenInteger { len, val }, nil
 }
 
-func VarLenIntegerNew (val uint64) *VarLenInteger {
+func (VarLenInteger) New (val uint64) *VarLenInteger {
 	retval := &VarLenInteger { 0, 0 }
 	retval.SetVal (val)
 	return retval
