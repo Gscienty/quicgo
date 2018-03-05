@@ -32,7 +32,7 @@ type Header struct {
 	packetNumber			PacketNumber
 }
 
-func (Header) Parse (b *bytes.Reader) (*Header, error) {
+func HeaderParse (b *bytes.Reader) (*Header, error) {
 	firstByte, err := b.ReadByte ()
 	if err != nil {
 		return nil, err
