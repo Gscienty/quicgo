@@ -1,9 +1,8 @@
 package protocol
 
 import (
-	"io"
+	"../utils"
 	"errors"
-	"encoding/binary"
 	"bytes"
 )
 
@@ -22,44 +21,26 @@ type StreamID struct {
 	id			uint64
 }
 
-func (StreamID) Parse (b io.Reader) (*StreamID, error) {
-	buf := make([]byte, 4)
-	l, err := b.Read (buf)
-	if err != nil {
-		return nil, err
+func StreamIDParse (sid utils.VarLenIntegerStruct) (*StreamID, error) {
+	if sid.GetVal () > ((uint64 (1) << 62) - 1) {
+		return nil, errors.New ("StreamIDParse error: val too large")
 	}
-	if l != 4 {
-		return nil, errors.New ("StreamID.Parse error: len error")
-	}
-	var retval *StreamID = &StreamID { }
-	if (buf[3] & STREAM_PERSPECTIVE_MASK) == STREAM_PERSPECTIVE_CLIENT {
-		retval.perspective = STREAM_PERSPECTIVE_CLIENT
-	} else {
-		retval.perspective = STREAM_PERSPECTIVE_SERVER
-	}
-	if (buf[3] & STREAM_TYPE_MASK) == STREAM_TYPE_BIDIRECTIONAL {
-		retval.streamType = STREAM_TYPE_BIDIRECTIONAL
-	} else {
-		retval.streamType = STREAM_TYPE_UNBIDIECTIONAL
-	}
-	buf[3] &= 0xFC
-	retval.id = binary.BigEndian.Uint64 (buf) >> 2
-	return retval, nil
+
+	return &StreamID {
+		id: sid.GetVal () >> 2,
+		perspective: uint8 (sid.GetVal () & STREAM_PERSPECTIVE_MASK),
+		streamType: uint8 (sid.GetVal () & STREAM_TYPE_MASK),
+	}, nil
 }
 
 func (this *StreamID) Serialize (b bytes.Buffer) error {
-	buf := make([]byte, 4)
-	binary.BigEndian.PutUint64 (buf, this.id)
-	buf[3] &= (this.perspective | this.streamType)
-	_, err := b.Write (buf)
-	if err != nil {
-		return err
-	}
+	val := (this.id << 2) | uint64 (this.perspective) | uint64 (this.streamType)
+	utils.VarLenIntegerStructNew (val).Serialize (b)
 	return nil
 }
 
 func (this *StreamID) SetID (id uint64) error {
-	if id > 0xFFFFFFFFFFFFFC {
+	if id > ((uint64 (1) << 60) - 1) {
 		return errors.New ("StreamID.SetID error: id too large")
 	}
 	this.id = id

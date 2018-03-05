@@ -12,12 +12,14 @@ const (
 	VARLENINT_MAX_8BYTE_VALUE = 0x3FFFFFFFFFFFFFFF
 )
 
-type VarLenInteger struct {
-	len int
+type VarLenIntegerStruct struct {
+	len uint8
 	val uint64
 }
 
-func (VarLenInteger) Parse (b io.Reader) (*VarLenInteger, error) {
+var VarLenInteger VarLenIntegerStruct = VarLenIntegerStruct { }
+
+func VarLenIntegerStructParse (b io.Reader) (*VarLenIntegerStruct, error) {
 	byteBuf := make ([]byte, 1)
 	_, err := b.Read (byteBuf)
 	if err != nil {
@@ -56,19 +58,19 @@ func (VarLenInteger) Parse (b io.Reader) (*VarLenInteger, error) {
 			(uint64 (buf[0]) << 48) +
 			(uint64 (firstByte & 0x3F) << 56)
 	} else {
-		return nil, errors.New ("VarLenInteger.Parse: len error")
+		return nil, errors.New ("VarLenIntegerStruct.Parse: len error")
 	}
 
-	return &VarLenInteger { len, val }, nil
+	return &VarLenIntegerStruct { uint8 (len), val }, nil
 }
 
-func (VarLenInteger) New (val uint64) *VarLenInteger {
-	retval := &VarLenInteger { 0, 0 }
+func VarLenIntegerStructNew (val uint64) *VarLenIntegerStruct {
+	retval := &VarLenIntegerStruct { 0, 0 }
 	retval.SetVal (val)
 	return retval
 }
 
-func (this *VarLenInteger) SetVal (val uint64) (err error) {
+func (this *VarLenIntegerStruct) SetVal (val uint64) (err error) {
 	if val <= VARLENINT_MAX_1BYTE_VALUE {
 		this.val = val
 		this.len = 1
@@ -82,12 +84,20 @@ func (this *VarLenInteger) SetVal (val uint64) (err error) {
 		this.val = val
 		this.len = 8
 	} else {
-		err = errors.New ("VarLenInteger.SetVal: val too large")
+		err = errors.New ("VarLenIntegerStruct.SetVal: val too large")
 	}
 	return 
 }
 
-func (this *VarLenInteger) Serialize (b bytes.Buffer) (size int, err error) {
+func (this *VarLenIntegerStruct) GetVal () uint64 {
+	return this.val
+}
+
+func (this *VarLenIntegerStruct) GetLen () uint8 {
+	return this.len
+}
+
+func (this *VarLenIntegerStruct) Serialize (b bytes.Buffer) (size int, err error) {
 	if this.len == 1 {
 		b.WriteByte (uint8 (this.val))
 		size = 1
@@ -110,7 +120,7 @@ func (this *VarLenInteger) Serialize (b bytes.Buffer) (size int, err error) {
 		b.Write (buf)
 		size = 8
 	} else {
-		err = errors.New ("VarLenInteger.Serialize: internal error, .len format error")
+		err = errors.New ("VarLenIntegerStruct.Serialize: internal error, .len format error")
 	}
 	return
 }
