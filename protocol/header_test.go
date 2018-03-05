@@ -74,5 +74,169 @@ func TestHeaderSerialize (t *testing.T) {
 			t.FailNow ()
 		}
 	}
+}
 
+
+func TestShortHeaderParse1 (t *testing.T) {
+	b := bytes.NewReader ([]byte {
+		0x00 | 0x1D,
+		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		0x10, 0x20, 0x30, 0x40,
+	})
+
+	header, err := HeaderParse (b)
+	if err != nil {
+		t.FailNow ()
+	}
+	if header.isLongHeader == true {
+		t.Fail ()
+		fmt.Println ("is Long Header")
+	}
+	if header.omitConnectionIDFlag != false {
+		t.Fail ()
+		fmt.Println ("omit connectionID")
+	}
+	if header.connectionID != ConnectionID (0x0102030405060708) {
+		t.Fail ()
+		fmt.Printf ("connectionID %x\n", header.connectionID)
+	}
+	if header.packetNumber != PacketNumber (0x10203040) {
+		t.Fail ()
+		fmt.Printf ("packetNumber %x\n", header.packetNumber)
+	}
+}
+
+func TestShortHeaderParse2 (t *testing.T) {
+	b := bytes.NewReader ([]byte {
+		0x00 | 0x1E,
+		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		0x10, 0x20,
+	})
+
+	header, err := HeaderParse (b)
+	if err != nil {
+		t.FailNow ()
+	}
+	if header.isLongHeader == true {
+		t.Fail ()
+		fmt.Println ("is Long Header")
+	}
+	if header.omitConnectionIDFlag != false {
+		t.Fail ()
+		fmt.Println ("omit connectionID")
+	}
+	if header.connectionID != ConnectionID (0x0102030405060708) {
+		t.Fail ()
+		fmt.Printf ("connectionID %x\n", header.connectionID)
+	}
+	if header.packetNumber != PacketNumber (0x1020) {
+		t.Fail ()
+		fmt.Printf ("packetNumber %x\n", header.packetNumber)
+	}
+}
+
+func TestShortHeaderParse3 (t *testing.T) {
+	b := bytes.NewReader ([]byte {
+		0x00 | 0x1F,
+		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		0x10,
+	})
+
+	header, err := HeaderParse (b)
+	if err != nil {
+		fmt.Println (err.Error ())
+		t.FailNow ()
+	}
+	if header.isLongHeader == true {
+		t.Fail ()
+		fmt.Println ("is Long Header")
+	}
+	if header.omitConnectionIDFlag != false {
+		t.Fail ()
+		fmt.Println ("omit connectionID")
+	}
+	if header.connectionID != ConnectionID (0x0102030405060708) {
+		t.Fail ()
+		fmt.Printf ("connectionID %x\n", header.connectionID)
+	}
+	if header.packetNumber != PacketNumber (0x10) {
+		t.Fail ()
+		fmt.Printf ("packetNumber %x\n", header.packetNumber)
+	}
+}
+
+func TestShortHeaderParse4 (t *testing.T) {
+	b := bytes.NewReader ([]byte {
+		0x40 | 0x1F,
+		0x10,
+	})
+
+	header, err := HeaderParse (b)
+	if err != nil {
+		fmt.Println (err.Error ())
+		t.FailNow ()
+	}
+	if header.isLongHeader == true {
+		t.Fail ()
+		fmt.Println ("is Long Header")
+	}
+	if header.omitConnectionIDFlag == false {
+		t.Fail ()
+		fmt.Println ("omit connectionID")
+	}
+	if header.packetNumber != PacketNumber (0x10) {
+		t.Fail ()
+		fmt.Printf ("packetNumber %x\n", header.packetNumber)
+	}
+}
+
+
+func TestShortHeaderParse5 (t *testing.T) {
+	b := bytes.NewReader ([]byte {
+		0x40 | 0x1E,
+		0x10, 0x20,
+	})
+
+	header, err := HeaderParse (b)
+	if err != nil {
+		fmt.Println (err.Error ())
+		t.FailNow ()
+	}
+	if header.isLongHeader == true {
+		t.Fail ()
+		fmt.Println ("is Long Header")
+	}
+	if header.omitConnectionIDFlag == false {
+		t.Fail ()
+		fmt.Println ("omit connectionID")
+	}
+	if header.packetNumber != PacketNumber (0x1020) {
+		t.Fail ()
+		fmt.Printf ("packetNumber %x\n", header.packetNumber)
+	}
+}
+
+func TestShortHeaderParse6 (t *testing.T) {
+	b := bytes.NewReader ([]byte {
+		0x40 | 0x1D,
+		0x10, 0x20, 0x30, 0x40,
+	})
+
+	header, err := HeaderParse (b)
+	if err != nil {
+		fmt.Println (err.Error ())
+		t.FailNow ()
+	}
+	if header.isLongHeader == true {
+		t.Fail ()
+		fmt.Println ("is Long Header")
+	}
+	if header.omitConnectionIDFlag == false {
+		t.Fail ()
+		fmt.Println ("omit connectionID")
+	}
+	if header.packetNumber != PacketNumber (0x10203040) {
+		t.Fail ()
+		fmt.Printf ("packetNumber %x\n", header.packetNumber)
+	}
 }
