@@ -4,6 +4,7 @@ import (
 	"../utils"
 	"errors"
 	"bytes"
+	"io"
 )
 
 const (
@@ -21,7 +22,11 @@ type StreamID struct {
 	id			uint64
 }
 
-func StreamIDParse (sid utils.VarLenIntegerStruct) (*StreamID, error) {
+func StreamIDParse (b io.Reader) (*StreamID, error) {
+	sid, err := utils.VarLenIntegerStructParse (b)
+	if err != nil {
+		return nil, err
+	}
 	if sid.GetVal () > ((uint64 (1) << 62) - 1) {
 		return nil, errors.New ("StreamIDParse error: val too large")
 	}
@@ -33,7 +38,7 @@ func StreamIDParse (sid utils.VarLenIntegerStruct) (*StreamID, error) {
 	}, nil
 }
 
-func (this *StreamID) Serialize (b bytes.Buffer) error {
+func (this *StreamID) Serialize (b *bytes.Buffer) error {
 	val := (this.id << 2) | uint64 (this.perspective) | uint64 (this.streamType)
 	utils.VarLenIntegerStructNew (val).Serialize (b)
 	return nil

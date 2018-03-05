@@ -97,7 +97,7 @@ func (this *VarLenIntegerStruct) GetLen () uint8 {
 	return this.len
 }
 
-func (this *VarLenIntegerStruct) Serialize (b bytes.Buffer) (size int, err error) {
+func (this *VarLenIntegerStruct) Serialize (b *bytes.Buffer) (size int, err error) {
 	if this.len == 1 {
 		b.WriteByte (uint8 (this.val))
 		size = 1
