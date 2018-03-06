@@ -12,13 +12,14 @@ type Version		uint32
 type PacketNumber	uint32
 
 const (
-	PACKET_TYPE_INITIAL			= 0x7F
-	PACKET_TYPE_RETRY			= 0x7E
-	PACKET_TYPE_HANDSHAKE		= 0x7D
-	PACKET_TYPE_0RTT_PROTECTED	= 0x7C
-	PACKET_TYPE_SHORT_1_OCTET	= 0x1F
-	PACKET_TYPE_SHORT_2_OCTET	= 0x1E
-	PACKET_TYPE_SHORT_4_OCTET	= 0x1D
+	PACKET_TYPE_VERSON_NEGO		= PacketType (0x00)
+	PACKET_TYPE_INITIAL			= PacketType (0x7F)
+	PACKET_TYPE_RETRY			= PacketType (0x7E)
+	PACKET_TYPE_HANDSHAKE		= PacketType (0x7D)
+	PACKET_TYPE_0RTT_PROTECTED	= PacketType (0x7C)
+	PACKET_TYPE_SHORT_1_OCTET	= PacketType (0x1F)
+	PACKET_TYPE_SHORT_2_OCTET	= PacketType (0x1E)
+	PACKET_TYPE_SHORT_4_OCTET	= PacketType (0x1D)
 )
 
 type Header struct {
@@ -86,19 +87,25 @@ func parseLongHeader (b *bytes.Reader) (*Header, error) {
 	if err != nil {
 		return nil, err
 	}
-	packetNumber, err := utils.BigEndian.ReadUInt (b, 4)
-	if err != nil {
-		return nil, err
+
+	var packetNumber uint64
+	if headByte & 0x7F == 0x00 {
+		// negotiation packet
+		packetNumber = 0
+	} else {
+		packetNumber, err = utils.BigEndian.ReadUInt (b, 4)
+		if err != nil {
+			return nil, err
+		}
 	}
-	ret := &Header {
+
+	return &Header {
 		isLongHeader:	true,
 		packetType:		PacketType (headByte & 0x7F),
 		connectionID:	ConnectionID (connID),
 		version: 		Version (version),
 		packetNumber:	PacketNumber (packetNumber),
-	}
-
-	return ret, nil
+	}, nil
 }
 
 func parseShortHeader (b *bytes.Reader) (*Header, error) {
@@ -152,7 +159,9 @@ func (this *Header) serializeLongHeader (b *bytes.Buffer) error {
 	b.WriteByte (0x80 | uint8 (this.packetType))
 	utils.BigEndian.WriteUInt (b, uint64 (this.connectionID), 8)
 	utils.BigEndian.WriteUInt (b, uint64 (this.version), 4)
-	utils.BigEndian.WriteUInt (b, uint64 (this.packetNumber), 4)
+	if this.packetType != PACKET_TYPE_VERSON_NEGO {
+		utils.BigEndian.WriteUInt (b, uint64 (this.packetNumber), 4)
+	}
 	return nil
 }
 
