@@ -49,8 +49,5 @@ func (this *ConnectionCloseStreamFrame) Serialize (b *bytes.Buffer) error {
 		return err
 	}
 	_, err = b.Write (reasonBuf)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

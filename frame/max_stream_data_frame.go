@@ -31,9 +31,5 @@ func (this *MaxStreamDataFrame) Serialize (b *bytes.Buffer) error {
 		return err
 	}
 	_, err = this.maximumData.Serialize (b)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

@@ -19,8 +19,5 @@ func MaxDataFrameParse (b *bytes.Reader) (*MaxDataFrame, error) {
 
 func (this *MaxDataFrame) Serialize (b *bytes.Buffer) error {
 	_, err := this.maximumData.Serialize (b)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
