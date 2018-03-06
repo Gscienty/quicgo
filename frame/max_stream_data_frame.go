@@ -22,14 +22,11 @@ func MaxStreamDataFrameParse (b *bytes.Reader) (*MaxStreamDataFrame, error) {
 		return nil, err
 	}
 
-	return &MaxStreamDataFrame {
-		streamID: *streamID,
-		maximumData: *maximumData,
-	}, nil
+	return &MaxStreamDataFrame { *streamID, *maximumData }, nil
 }
 
 func (this *MaxStreamDataFrame) Serialize (b *bytes.Buffer) error {
-	_, err := this.streamID.Serialize (b)
+	err := this.streamID.Serialize (b)
 	if err != nil {
 		return err
 	}

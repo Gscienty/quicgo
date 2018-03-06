@@ -26,11 +26,7 @@ func RstStreamFrameParse (b *bytes.Reader) (*RstStreamFrame, error) {
 		return nil, err
 	}
 
-	return &RstStreamFrame {
-		streamID: *streamID,
-		errorCode: uint16 (errorCode),
-		finalOffset: *finalOffset,
-	}, nil
+	return &RstStreamFrame { *streamID, uint16 (errorCode), *finalOffset }, nil
 }
 
 func (this *RstStreamFrame) Serialize (b *bytes.Buffer) error {

@@ -37,10 +37,7 @@ func ConnectionCloseStreamFrameParse (b *bytes.Reader) (*ConnectionCloseStreamFr
 		return nil, errors.New ("ConnectionCloseStreamFrameParse error: reason length error")
 	}
 
-	return &ConnectionCloseStreamFrame {
-		errorCode: errCode,
-		reason: string (reasonBuf),
-	}, nil
+	return &ConnectionCloseStreamFrame { errCode, string (reasonBuf) }, nil
 }
 
 func (this *ConnectionCloseStreamFrame) Serialize (b *bytes.Buffer) error {
