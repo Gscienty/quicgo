@@ -52,12 +52,20 @@ func (this *StreamID) SetID (id uint64) error {
 	return nil
 }
 
+func (this *StreamID) GetID () uint64 {
+	return this.id
+}
+
 func (this *StreamID) SetPerspective (perspective uint8) error {
 	if perspective != STREAM_PERSPECTIVE_CLIENT && perspective != STREAM_PERSPECTIVE_SERVER {
 		return errors.New ("StreamID.SetPerspective error: illegal perspective")
 	}
 	this.perspective = perspective
 	return nil
+}
+
+func (this *StreamID) GetPerspective () uint8 {
+	return this.perspective
 }
 
 func (this *StreamID) SetType (streamType uint8) error {
@@ -68,3 +76,6 @@ func (this *StreamID) SetType (streamType uint8) error {
 	return nil
 }
 
+func (this *StreamID) GetType () uint8 {
+	return this.streamType
+}
