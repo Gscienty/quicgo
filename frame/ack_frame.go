@@ -25,7 +25,7 @@ func AckFrameParse (b *bytes.Reader) (*AckFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x0E {
+	if frameType != FRAME_TYPE_ACK {
 		return nil, errors.New ("AckFrameParse error: frametype not equal 0x0E")
 	}
 

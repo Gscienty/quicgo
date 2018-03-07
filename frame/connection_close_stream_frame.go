@@ -18,7 +18,7 @@ func ConnectionCloseStreamFrameParse (b *bytes.Reader) (*ConnectionCloseStreamFr
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x02 {
+	if frameType != FRAME_TYPE_CONNECTION_CLOSE {
 		return nil, errors.New ("ConnectionCloseStreamFrameParse error: frametype not equal 0x02")
 	}
 

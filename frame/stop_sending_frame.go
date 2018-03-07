@@ -18,7 +18,7 @@ func StopSendingFrameParse (b *bytes.Reader) (*StopSendingFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x0C {
+	if frameType != FRAME_TYPE_STOP_SENDING {
 		return nil, errors.New ("StopSendingFrameParse error: frametype not equal 0x0C")
 	}
 

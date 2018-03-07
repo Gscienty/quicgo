@@ -16,7 +16,7 @@ func BlockedFrameParse (b *bytes.Reader) (*BlockedFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x08 {
+	if frameType != FRAME_TYPE_BLOCKED {
 		return nil, errors.New ("BlockedFrameParse error: frametype not equal 0x08")
 	}
 

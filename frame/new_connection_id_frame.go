@@ -19,7 +19,7 @@ func NewConnectionIDFrameParse (b *bytes.Reader) (*NewConnectionIDFrame, error) 
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x0B {
+	if frameType != FRAME_TYPE_NEW_CONNECTION_ID {
 		return nil, errors.New ("NewConnectionIDFrameParse error: frametype not equal 0x0B")
 	}
 

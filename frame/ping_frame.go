@@ -17,7 +17,7 @@ func PingFrameParse (b *bytes.Reader) (*PingFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x07 {
+	if frameType != FRAME_TYPE_PING {
 		return nil, errors.New ("PingFrameParse error: frametype not equal 0x07")
 	}
 

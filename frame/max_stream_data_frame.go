@@ -18,7 +18,7 @@ func MaxStreamDataFrameParse (b *bytes.Reader) (*MaxStreamDataFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x05 {
+	if frameType != FRAME_TYPE_MAX_STREAM_DATA {
 		return nil, errors.New ("MaxStreamDataFrameParse error: frametype not equal 0x05")
 	}
 

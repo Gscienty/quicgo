@@ -19,7 +19,7 @@ func RstStreamFrameParse (b *bytes.Reader) (*RstStreamFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x01 {
+	if frameType != FRAME_TYPE_RST_STREAM {
 		return nil, errors.New ("RstStreamFrameParse error: frametype not equal 0x01")
 	}
 

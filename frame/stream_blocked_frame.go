@@ -18,7 +18,7 @@ func StreamBlockedFrameParse (b *bytes.Reader) (*StreamBlockedFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != 0x09 {
+	if frameType != FRAME_TYPE_STREAM_BLOCKED {
 		return nil, errors.New ("StreamBlockedFrameParse error: frametype not equal 0x09")
 	}
 
