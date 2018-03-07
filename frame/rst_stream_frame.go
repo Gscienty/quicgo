@@ -4,15 +4,25 @@ import (
 	"../utils"
 	"../protocol"
 	"bytes"
+	"errors"
 )
 
 type RstStreamFrame struct {
+	Frame
 	streamID	protocol.StreamID
 	errorCode	uint16
 	finalOffset	utils.VarLenIntegerStruct
 }
 
 func RstStreamFrameParse (b *bytes.Reader) (*RstStreamFrame, error) {
+	frameType,err := b.ReadByte ()
+	if err != nil {
+		return nil, err
+	}
+	if frameType != 0x01 {
+		return nil, errors.New ("RstStreamFrameParse error: frametype not equal 0x01")
+	}
+
 	streamID, err := protocol.StreamIDParse (b)
 	if err != nil {
 		return nil, err
@@ -26,10 +36,15 @@ func RstStreamFrameParse (b *bytes.Reader) (*RstStreamFrame, error) {
 		return nil, err
 	}
 
-	return &RstStreamFrame { *streamID, uint16 (errorCode), *finalOffset }, nil
+	return &RstStreamFrame { Frame { frameType }, *streamID, uint16 (errorCode), *finalOffset }, nil
 }
 
 func (this *RstStreamFrame) Serialize (b *bytes.Buffer) error {
+	err := b.WriteByte (this.frameType)
+	if err != nil {
+		return err
+	}
+
 	this.streamID.Serialize (b)
 	utils.BigEndian.WriteUInt (b, uint64 (this.errorCode), 2)
 	this.finalOffset.Serialize (b)

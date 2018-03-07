@@ -4,14 +4,24 @@ import (
 	"../utils"
 	"../protocol"
 	"bytes"
+	"errors"
 )
 
 type StreamBlockedFrame struct {
+	Frame
 	streamID	protocol.StreamID
 	offset		utils.VarLenIntegerStruct
 }
 
 func StreamBlockedFrameParse (b *bytes.Reader) (*StreamBlockedFrame, error) {
+	frameType, err := b.ReadByte ()
+	if err != nil {
+		return nil, err
+	}
+	if frameType != 0x09 {
+		return nil, errors.New ("StreamBlockedFrameParse error: frametype not equal 0x09")
+	}
+
 	streamID, err := protocol.StreamIDParse (b)
 	if err != nil {
 		return nil, err
@@ -22,11 +32,16 @@ func StreamBlockedFrameParse (b *bytes.Reader) (*StreamBlockedFrame, error) {
 		return nil, err
 	}
 
-	return &StreamBlockedFrame { *streamID, *offset }, nil
+	return &StreamBlockedFrame { Frame { frameType }, *streamID, *offset }, nil
 }
 
 func (this *StreamBlockedFrame) Serialize (b *bytes.Buffer) error {
-	err := this.streamID.Serialize (b)
+	err := b.WriteByte (this.frameType)
+	if err != nil {
+		return err
+	}
+
+	err = this.streamID.Serialize (b)
 	if err != nil {
 		return err
 	}

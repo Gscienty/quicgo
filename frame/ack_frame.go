@@ -12,6 +12,7 @@ type AckBlock struct {
 }
 
 type AckFrame struct {
+	Frame
 	largestAcknowledged	utils.VarLenIntegerStruct
 	ackDelay			utils.VarLenIntegerStruct
 	ackBlockCount		utils.VarLenIntegerStruct
@@ -20,6 +21,14 @@ type AckFrame struct {
 }
 
 func AckFrameParse (b *bytes.Reader) (*AckFrame, error) {
+	frameType, err := b.ReadByte ()
+	if err != nil {
+		return nil, err
+	}
+	if frameType != 0x0E {
+		return nil, errors.New ("AckFrameParse error: frametype not equal 0x0E")
+	}
+
 	largestAcknowledged, err := utils.VarLenIntegerStructParse (b)
 	if err != nil {
 		return nil, err
@@ -71,11 +80,16 @@ func AckFrameParse (b *bytes.Reader) (*AckFrame, error) {
 		blocks = append (blocks, AckBlock { smallest, largest })
 	}
 
-	return &AckFrame { *largestAcknowledged, *delay, *blockCount, blocks }, nil
+	return &AckFrame { Frame { frameType }, *largestAcknowledged, *delay, *blockCount, blocks }, nil
 }
 
 func (this *AckFrame) Serialize (b *bytes.Buffer) error {
-	_, err := this.largestAcknowledged.Serialize (b)
+	err := b.WriteByte (this.frameType)
+	if err != nil {
+		return err
+	}
+	
+	_, err = this.largestAcknowledged.Serialize (b)
 	if err != nil {
 		return err
 	}

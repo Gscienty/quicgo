@@ -3,14 +3,24 @@ package frame
 import (
 	"../utils"
 	"bytes"
+	"errors"
 )
 
 type PingFrame struct {
+	Frame
 	length	uint8
 	data	utils.VarLenIntegerStruct
 }
 
 func PingFrameParse (b *bytes.Reader) (*PingFrame, error) {
+	frameType, err := b.ReadByte ()
+	if err != nil {
+		return nil, err
+	}
+	if frameType != 0x07 {
+		return nil, errors.New ("PingFrameParse error: frametype not equal 0x07")
+	}
+
 	len, err := b.ReadByte ()
 	if err != nil {
 		return nil, err
@@ -21,11 +31,16 @@ func PingFrameParse (b *bytes.Reader) (*PingFrame, error) {
 		return nil, err
 	}
 
-	return &PingFrame { len, *data }, nil
+	return &PingFrame { Frame { frameType }, len, *data }, nil
 }
 
 func (this *PingFrame) Serialize (b *bytes.Buffer) error {
-	err := b.WriteByte (this.length)
+	err := b.WriteByte (this.frameType)
+	if err != nil {
+		return err
+	}
+
+	err = b.WriteByte (this.length)
 	if err != nil {
 		return err
 	}

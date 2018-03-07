@@ -8,12 +8,21 @@ import (
 )
 
 type NewConnectionIDFrame struct {
+	Frame
 	sequence		utils.VarLenIntegerStruct
 	connectionID	protocol.ConnectionID
 	token			[]byte
 }
 
 func NewConnectionIDFrameParse (b *bytes.Reader) (*NewConnectionIDFrame, error) {
+	frameType, err := b.ReadByte ()
+	if err != nil {
+		return nil, err
+	}
+	if frameType != 0x0B {
+		return nil, errors.New ("NewConnectionIDFrameParse error: frametype not equal 0x0B")
+	}
+
 	sequence, err := utils.VarLenIntegerStructParse (b)
 	if err != nil {
 		return nil, err
@@ -33,11 +42,16 @@ func NewConnectionIDFrameParse (b *bytes.Reader) (*NewConnectionIDFrame, error) 
 		return nil, errors.New ("NewConnectionIDFrameParse error: cannot read fully token")
 	}
 
-	return &NewConnectionIDFrame { *sequence, protocol.ConnectionID (connectionID), token }, nil
+	return &NewConnectionIDFrame { Frame { frameType }, *sequence, protocol.ConnectionID (connectionID), token }, nil
 }
 
 func (this *NewConnectionIDFrame) Serialize (b *bytes.Buffer) error {
-	_, err := this.sequence.Serialize (b)
+	err := b.WriteByte (this.frameType)
+	if err != nil {
+		return err
+	}
+
+	_, err = this.sequence.Serialize (b)
 	if err != nil {
 		return err
 	}
