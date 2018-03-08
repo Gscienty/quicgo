@@ -17,9 +17,9 @@ const (
 	PACKET_TYPE_RETRY			= PacketType (0x7E)
 	PACKET_TYPE_HANDSHAKE		= PacketType (0x7D)
 	PACKET_TYPE_0RTT_PROTECTED	= PacketType (0x7C)
-	PACKET_TYPE_SHORT_1_OCTET	= PacketType (0x1F)
-	PACKET_TYPE_SHORT_2_OCTET	= PacketType (0x1E)
-	PACKET_TYPE_SHORT_4_OCTET	= PacketType (0x1D)
+	PACKET_TYPE_SHORT_1_OCTET	= PacketType (0x00)
+	PACKET_TYPE_SHORT_2_OCTET	= PacketType (0x01)
+	PACKET_TYPE_SHORT_4_OCTET	= PacketType (0x02)
 )
 
 type Header struct {
@@ -76,6 +76,10 @@ func (this *Header) SerializedLength () uint8 {
 	}
 }
 
+func (this *Header) GetPacketType () PacketType {
+	return this.packetType;
+}
+
 func parseLongHeader (b *bytes.Reader) (*Header, error) {
 	headByte, _ := b.ReadByte ()
 	connID, err := utils.BigEndian.ReadUInt (b, 8)
@@ -121,7 +125,7 @@ func parseShortHeader (b *bytes.Reader) (*Header, error) {
 	} else {
 		ret.keyPhaseBit = false
 	}
-	ret.packetType = PacketType (headByte & 0x1F)
+	ret.packetType = PacketType (headByte & 0x07)
 	if ret.omitConnectionIDFlag == false {
 		v, err := utils.BigEndian.ReadUInt (b, 8)
 		if err != nil {
@@ -175,7 +179,7 @@ func (this *Header) serializeShortHeader (b *bytes.Buffer) error {
 		flags |= 0x20
 	}
 	
-	b.WriteByte (flags | uint8 (this.packetType))
+	b.WriteByte (flags | 0x10 | uint8 (this.packetType))
 
 	if this.omitConnectionIDFlag == false {
 		utils.BigEndian.WriteUInt (b, uint64 (this.connectionID), 8)
