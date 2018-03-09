@@ -36,10 +36,10 @@ type FlowControl struct {
 }
 
 func (this *FlowControl) GetSendWindowSize() uint64 {
-	if this.sendedBytesCount < this.sendOffset {
+	if this.sendedBytesCount > this.sendOffset {
 		return 0
 	}
-	return this.sendedBytesCount - this.sendOffset
+	return this.sendOffset - this.sendedBytesCount
 }
 
 func (this *FlowControl) SetSendWindowOffset(offset uint64) {
