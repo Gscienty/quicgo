@@ -9,7 +9,7 @@ import(
 
 type IFlowControl interface {
 	GetSendWindowSize() uint64
-	SetSendWindowOffset(uint64)
+	SetSendOffset(uint64)
 
 	AddSendedBytesCount(uint64)
 	AddRecvedBytesCount(uint64)
@@ -42,7 +42,7 @@ func (this *FlowControl) GetSendWindowSize() uint64 {
 	return this.sendOffset - this.sendedBytesCount
 }
 
-func (this *FlowControl) SetSendWindowOffset(offset uint64) {
+func (this *FlowControl) SetSendOffset(offset uint64) {
 	if offset > this.sendOffset {
 		this.sendOffset = offset
 	}
@@ -64,7 +64,6 @@ func (this *FlowControl) AddRecvedBytesCount(n uint64) {
 
 func (this *FlowControl) adjustWindowSize() {
 	bytesReadInDuringCount := this.recvBytesCount - this.startAutoTuringOffset
-
 	if bytesReadInDuringCount < this.recvWindowSize / 2 {
 		return
 	}
@@ -74,7 +73,7 @@ func (this *FlowControl) adjustWindowSize() {
 		return
 	}
 
-	fraction := float64(bytesReadInDuringCount) / float64(this.recvBytesCount)
+	fraction := float64(bytesReadInDuringCount) / float64(this.recvWindowSize)
 	if time.Since(this.startAutoTuringTime) < time.Duration(4 * fraction * float64(rtt)) {
 		if(this.recvWindowSize << 1) < this.maxRecvWindowSize {
 			this.recvWindowSize <<= 1
@@ -97,10 +96,11 @@ func (this *FlowControl) recvWindowHasUpdate() bool {
 }
 
 func (this *FlowControl) recvWindowUpdate() uint64 {
-	if this.recvWindowHasUpdate() {
-		this.adjustWindowSize()
-		this.recvSize = this.recvBytesCount + this.recvWindowSize
+	if this.recvWindowHasUpdate() == false {
+		return 0
 	}
 
+	this.adjustWindowSize()
+	this.recvSize = this.recvBytesCount + this.recvWindowSize
 	return this.recvSize
 }
