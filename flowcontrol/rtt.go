@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	MAX_DURATION time.Duration	= time.Duration (math.MaxInt64)
+	MAX_DURATION time.Duration	= time.Duration(math.MaxInt64)
 
 	INITIAL_RTT_US				= 100 * 1000
 	RTT_ALPHA					= 0.125
@@ -35,13 +35,13 @@ type RTTStat struct {
 	quarterWindowRTT	RTT
 }
 
-func absDuration (t time.Duration) time.Duration {
+func absDuration(t time.Duration) time.Duration {
 	if t < 0 {
 		return -t
 	}
 	return t
 }
-func maxDuration (a time.Duration, b time.Duration) time.Duration {
+func maxDuration(a time.Duration, b time.Duration) time.Duration {
 	if a > b {
 		return a
 	} else {
@@ -49,11 +49,11 @@ func maxDuration (a time.Duration, b time.Duration) time.Duration {
 	}
 }
 
-func RTTStatNew () *RTTStat {
+func RTTStatNew() *RTTStat {
 	return &RTTStat { recentMinRTTWindow: MAX_DURATION }
 }
 
-func (this *RTTStat) Update (delta time.Duration, delay time.Duration, current time.Time) {
+func (this *RTTStat) Update(delta time.Duration, delay time.Duration, current time.Time) {
 	if delta == MAX_DURATION || delta <= 0 {
 		return
 	}
@@ -85,16 +85,16 @@ func (this *RTTStat) Update (delta time.Duration, delay time.Duration, current t
 		this.quarterWindowRTT = RTT { delta, current }
 	}
 
-	if this.recentMinRTT.time.Before (current.Add (-this.recentMinRTTWindow)) {
+	if this.recentMinRTT.time.Before(current.Add(-this.recentMinRTTWindow)) {
 		this.recentMinRTT = this.halfWindowRTT
 		this.halfWindowRTT = this.quarterWindowRTT
 		this.quarterWindowRTT = RTT { delta, current }
-	} else if this.halfWindowRTT.time.Before (current.Add (
-		-time.Duration (float32 (this.recentMinRTTWindow / time.Millisecond) * HARF_WINDOW) * time.Microsecond)) {
+	} else if this.halfWindowRTT.time.Before(current.Add (
+		-time.Duration (float32(this.recentMinRTTWindow / time.Millisecond) * HARF_WINDOW) * time.Microsecond)) {
 		this.halfWindowRTT = this.quarterWindowRTT
 		this.quarterWindowRTT = RTT { delta, current }
 	} else if this.quarterWindowRTT.time.Before (current.Add(
-		-time.Duration (float32 (this.recentMinRTTWindow / time.Millisecond) * QUARTER_WINDOW) * time.Microsecond)) {
+		-time.Duration(float32 (this.recentMinRTTWindow / time.Millisecond) * QUARTER_WINDOW) * time.Microsecond)) {
 		this.quarterWindowRTT = RTT { delta, current }
 	}
 
@@ -107,20 +107,20 @@ func (this *RTTStat) Update (delta time.Duration, delay time.Duration, current t
 		this.meanDeviation = delta / 2
 	} else {
 		this.meanDeviation = time.Duration (
-			(1 - RTT_BETA) * float32 (this.meanDeviation / time.Millisecond) +
-			RTT_BETA * float32 (absDuration((this.smoothedRTT - delta) / time.Millisecond))) * time.Microsecond
-		this.smoothedRTT = time.Duration (
-			(1 - RTT_ALPHA) * float32 (this.smoothedRTT / time.Millisecond) +
-			RTT_ALPHA * float32 (delta / time.Millisecond)) * time.Millisecond
+			(1 - RTT_BETA) * float32(this.meanDeviation / time.Millisecond) +
+			RTT_BETA * float32(absDuration((this.smoothedRTT - delta) / time.Millisecond))) * time.Microsecond
+		this.smoothedRTT = time.Duration(
+			(1 - RTT_ALPHA) * float32(this.smoothedRTT / time.Millisecond) +
+			RTT_ALPHA * float32(delta / time.Millisecond)) * time.Millisecond
 	}
 }
 
-func (this *RTTStat) SimpleCurrentRecentMinRTT (n uint64) {
+func (this *RTTStat) SimpleCurrentRecentMinRTT(n uint64) {
 	this.samplesCount = n
 	this.currentMinRTT = RTT { }
 }
 
-func (this *RTTStat) OnConnectionMigration () {
+func (this *RTTStat) OnConnectionMigration() {
 	this.lastestRTT = 0
 	this.minRTT = 0
 	this.smoothedRTT = 0
@@ -134,7 +134,7 @@ func (this *RTTStat) OnConnectionMigration () {
 	this.quarterWindowRTT = RTT { }
 }
 
-func (this *RTTStat) ExpireSmoothed () {
-	this.meanDeviation = maxDuration (this.meanDeviation, absDuration (this.smoothedRTT - this.lastestRTT))
-	this.smoothedRTT = maxDuration (this.smoothedRTT, this.lastestRTT)
+func (this *RTTStat) ExpireSmoothed() {
+	this.meanDeviation = maxDuration(this.meanDeviation, absDuration(this.smoothedRTT - this.lastestRTT))
+	this.smoothedRTT = maxDuration(this.smoothedRTT, this.lastestRTT)
 }
