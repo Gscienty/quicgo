@@ -1,6 +1,6 @@
 package frame
 
-import (
+import(
 	"errors"
 	"bytes"
 	"../utils"
@@ -13,21 +13,21 @@ type MaxStreamDataFrame struct {
 	maximumData	utils.VarLenIntegerStruct
 }
 
-func MaxStreamDataFrameParse (b *bytes.Reader) (*MaxStreamDataFrame, error) {
-	frameType, err := b.ReadByte ()
+func MaxStreamDataFrameParse(b *bytes.Reader) (*MaxStreamDataFrame, error) {
+	frameType, err := b.ReadByte()
 	if err != nil {
 		return nil, err
 	}
 	if frameType != FRAME_TYPE_MAX_STREAM_DATA {
-		return nil, errors.New ("MaxStreamDataFrameParse error: frametype not equal 0x05")
+		return nil, errors.New("MaxStreamDataFrameParse error: frametype not equal 0x05")
 	}
 
-	streamID, err := protocol.StreamIDParse (b)
+	streamID, err := protocol.StreamIDParse(b)
 	if err != nil {
 		return nil, err
 	}
 
-	maximumData, err := utils.VarLenIntegerStructParse (b)
+	maximumData, err := utils.VarLenIntegerStructParse(b)
 	if err != nil {
 		return nil, err
 	}
@@ -35,16 +35,16 @@ func MaxStreamDataFrameParse (b *bytes.Reader) (*MaxStreamDataFrame, error) {
 	return &MaxStreamDataFrame { Frame { frameType }, *streamID, *maximumData }, nil
 }
 
-func (this *MaxStreamDataFrame) Serialize (b *bytes.Buffer) error {
-	err := b.WriteByte (this.frameType)
+func (this *MaxStreamDataFrame) Serialize(b *bytes.Buffer) error {
+	err := b.WriteByte(this.frameType)
 	if err != nil {
 		return err
 	}
 	
-	err = this.streamID.Serialize (b)
+	err = this.streamID.Serialize(b)
 	if err != nil {
 		return err
 	}
-	_, err = this.maximumData.Serialize (b)
+	_, err = this.maximumData.Serialize(b)
 	return err
 }

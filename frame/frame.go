@@ -1,6 +1,6 @@
 package frame
 
-const (
+const(
 	FRAME_TYPE_PADDING				= 0x00
 	FRAME_TYPE_RST_STREAM			= 0x01
 	FRAME_TYPE_CONNECTION_CLOSE		= 0x02

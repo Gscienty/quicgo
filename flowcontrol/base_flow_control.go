@@ -1,6 +1,6 @@
 package flowcontrol
 
-import (
+import(
 	"sync"
 	"time"
 	"../protocol"
@@ -73,8 +73,8 @@ func (this *FlowControl) adjustWindowSize() {
 	}
 
 	fraction := float64(bytesReadInDuringCount) / float64(this.recvBytesCount)
-	if time.Since(this.startAutoTuringTime) < time.Duration(4 * fraction * float64 (rtt)) {
-		if (this.recvWindowSize << 1) < this.maxRecvWindowSize {
+	if time.Since(this.startAutoTuringTime) < time.Duration(4 * fraction * float64(rtt)) {
+		if(this.recvWindowSize << 1) < this.maxRecvWindowSize {
 			this.recvWindowSize <<= 1
 		} else {
 			this.recvWindowSize = this.maxRecvWindowSize

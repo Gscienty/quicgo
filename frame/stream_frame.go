@@ -1,6 +1,6 @@
 package frame
 
-import (
+import(
 	"bytes"
 	"errors"
 	"io"
@@ -17,26 +17,26 @@ type StreamFrame struct {
 	data		[]byte
 }
 
-func StreamFrameParse (b *bytes.Reader) (*StreamFrame, error) {
+func StreamFrameParse(b *bytes.Reader) (*StreamFrame, error) {
 	ret := &StreamFrame { }
 
-	frameType, err := b.ReadByte ()
+	frameType, err := b.ReadByte()
 	if err != nil {
 		return nil, err
 	}
 	if frameType & FRAME_TYPE_STREAM != FRAME_TYPE_STREAM {
-		return nil, errors.New ("StreamFrameParse error: frametype error")
+		return nil, errors.New("StreamFrameParse error: frametype error")
 	}
 	ret.frameType = frameType
 
-	streamID, err := protocol.StreamIDParse (b)
+	streamID, err := protocol.StreamIDParse(b)
 	if err != nil {
 		return nil, err
 	}
 	ret.streamID = *streamID
 
 	if frameType & FRAME_TYPE_STREAM_OFF == FRAME_TYPE_STREAM_OFF {
-		offset, err := utils.VarLenIntegerStructParse (b)
+		offset, err := utils.VarLenIntegerStructParse(b)
 		if err != nil {
 			return nil, err
 		}
@@ -44,57 +44,57 @@ func StreamFrameParse (b *bytes.Reader) (*StreamFrame, error) {
 	}
 
 	if frameType & FRAME_TYPE_STREAM_LEN == FRAME_TYPE_STREAM_LEN {
-		length, err := utils.VarLenIntegerStructParse (b)
+		length, err := utils.VarLenIntegerStructParse(b)
 		if err != nil {
 			return nil, err
 		}
 		ret.length = *length
-		if length.GetVal () > uint64 (b.Len ()) {
+		if length.GetVal() > uint64(b.Len()) {
 			return nil, io.EOF
 		}
 	} else {
-		ret.length = *utils.VarLenIntegerStructNew (uint64 (b.Len ()))
+		ret.length = *utils.VarLenIntegerStructNew(uint64(b.Len()))
 	}
 
-	if ret.length.GetVal () != 0 {
-		ret.data = make ([]byte, ret.length.GetVal ())
-		if _, err := io.ReadFull (b, ret.data); err != nil {
+	if ret.length.GetVal() != 0 {
+		ret.data = make([]byte, ret.length.GetVal())
+		if _, err := io.ReadFull(b, ret.data); err != nil {
 			return nil, err
 		}
 	}
 
-	if (frameType & FRAME_TYPE_STREAM_FIN != FRAME_TYPE_STREAM_FIN) && len (ret.data) == 0 {
-		return nil, errors.New ("StreamFrameParse error: empty stream")
+	if(frameType & FRAME_TYPE_STREAM_FIN != FRAME_TYPE_STREAM_FIN) && len(ret.data) == 0 {
+		return nil, errors.New("StreamFrameParse error: empty stream")
 	}
 
 	return ret, nil
 }
 
-func (this *StreamFrame) Serialize (b *bytes.Buffer) error {
-	err := b.WriteByte (this.frameType)
+func (this *StreamFrame) Serialize(b *bytes.Buffer) error {
+	err := b.WriteByte(this.frameType)
 	if err != nil {
 		return err
 	}
 
-	err = this.streamID.Serialize (b)
+	err = this.streamID.Serialize(b)
 	if err != nil {
 		return err
 	}
 
 	if this.frameType & FRAME_TYPE_STREAM_OFF == FRAME_TYPE_STREAM_OFF {
-		_, err = this.offset.Serialize (b)
+		_, err = this.offset.Serialize(b)
 		if err != nil {
 			return err
 		}
 	}
 
 	if this.frameType & FRAME_TYPE_STREAM_LEN == FRAME_TYPE_STREAM_LEN {
-		_, err = this.offset.Serialize (b)
+		_, err = this.offset.Serialize(b)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = b.Write (this.data)
+	_, err = b.Write(this.data)
 	return err
 }

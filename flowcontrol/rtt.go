@@ -1,11 +1,11 @@
 package flowcontrol
 
-import (
+import(
 	"math"
 	"time"
 )
 
-const (
+const(
 	MAX_DURATION time.Duration	= time.Duration(math.MaxInt64)
 
 	INITIAL_RTT_US				= 100 * 1000
@@ -89,12 +89,12 @@ func (this *RTTStat) Update(delta time.Duration, delay time.Duration, current ti
 		this.recentMinRTT = this.halfWindowRTT
 		this.halfWindowRTT = this.quarterWindowRTT
 		this.quarterWindowRTT = RTT { delta, current }
-	} else if this.halfWindowRTT.time.Before(current.Add (
-		-time.Duration (float32(this.recentMinRTTWindow / time.Millisecond) * HARF_WINDOW) * time.Microsecond)) {
+	} else if this.halfWindowRTT.time.Before(current.Add(
+		-time.Duration(float32(this.recentMinRTTWindow / time.Millisecond) * HARF_WINDOW) * time.Microsecond)) {
 		this.halfWindowRTT = this.quarterWindowRTT
 		this.quarterWindowRTT = RTT { delta, current }
-	} else if this.quarterWindowRTT.time.Before (current.Add(
-		-time.Duration(float32 (this.recentMinRTTWindow / time.Millisecond) * QUARTER_WINDOW) * time.Microsecond)) {
+	} else if this.quarterWindowRTT.time.Before(current.Add(
+		-time.Duration(float32(this.recentMinRTTWindow / time.Millisecond) * QUARTER_WINDOW) * time.Microsecond)) {
 		this.quarterWindowRTT = RTT { delta, current }
 	}
 
@@ -106,7 +106,7 @@ func (this *RTTStat) Update(delta time.Duration, delay time.Duration, current ti
 		this.smoothedRTT = delta
 		this.meanDeviation = delta / 2
 	} else {
-		this.meanDeviation = time.Duration (
+		this.meanDeviation = time.Duration(
 			(1 - RTT_BETA) * float32(this.meanDeviation / time.Millisecond) +
 			RTT_BETA * float32(absDuration((this.smoothedRTT - delta) / time.Millisecond))) * time.Microsecond
 		this.smoothedRTT = time.Duration(

@@ -1,11 +1,11 @@
 package utils
 
-import (
+import(
 	"bytes"
 	"io"
 )
 
 type ByteOrder interface {
-	ReadUInt (io.Reader, uint8) (uint64, error)
-	WriteUInt (*bytes.Buffer, uint64, uint8)
+	ReadUInt(io.Reader, uint8) (uint64, error)
+	WriteUInt(*bytes.Buffer, uint64, uint8)
 }
