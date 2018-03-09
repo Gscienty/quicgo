@@ -12,8 +12,9 @@ type IFlowControl interface {
 	SetSendWindowOffset(uint64)
 
 	AddSendedBytesCount(uint64)
-
 	AddRecvedBytesCount(uint64)
+
+	RecvWindowUpdate() uint64
 }
 
 type FlowControl struct {
@@ -27,10 +28,11 @@ type FlowControl struct {
 	recvWindowSize			uint64
 	maxRecvWindowSize		uint64
 	recvBytesCount			uint64
+	recvHighestOffset		uint64
 
 	startAutoTuringTime		time.Time
 	startAutoTuringOffset	uint64
-	rttStat					RTTStat
+	rttStat					*RTTStat
 }
 
 func (this *FlowControl) GetSendWindowSize() uint64 {
