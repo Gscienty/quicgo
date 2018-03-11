@@ -23,7 +23,6 @@ type FlowControl struct {
 
 	recvRWLock				sync.RWMutex
 
-	recvOffset				uint64
 	recvSize				uint64
 	recvWindowSize			uint64
 	maxRecvWindowSize		uint64
