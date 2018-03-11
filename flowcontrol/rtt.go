@@ -90,11 +90,11 @@ func (this *RTTStat) Update(delta time.Duration, delay time.Duration, current ti
 		this.halfWindowRTT = this.quarterWindowRTT
 		this.quarterWindowRTT = RTT { delta, current }
 	} else if this.halfWindowRTT.time.Before(current.Add(
-		-time.Duration(float32(this.recentMinRTTWindow / time.Millisecond) * HARF_WINDOW) * time.Microsecond)) {
+		-time.Duration(float32(this.recentMinRTTWindow / time.Microsecond) * HARF_WINDOW) * time.Microsecond)) {
 		this.halfWindowRTT = this.quarterWindowRTT
 		this.quarterWindowRTT = RTT { delta, current }
 	} else if this.quarterWindowRTT.time.Before(current.Add(
-		-time.Duration(float32(this.recentMinRTTWindow / time.Millisecond) * QUARTER_WINDOW) * time.Microsecond)) {
+		-time.Duration(float32(this.recentMinRTTWindow / time.Microsecond) * QUARTER_WINDOW) * time.Microsecond)) {
 		this.quarterWindowRTT = RTT { delta, current }
 	}
 
