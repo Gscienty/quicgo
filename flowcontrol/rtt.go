@@ -107,11 +107,11 @@ func (this *RTTStat) Update(delta time.Duration, delay time.Duration, current ti
 		this.meanDeviation = delta / 2
 	} else {
 		this.meanDeviation = time.Duration(
-			(1 - RTT_BETA) * float32(this.meanDeviation / time.Millisecond) +
-			RTT_BETA * float32(absDuration((this.smoothedRTT - delta) / time.Millisecond))) * time.Microsecond
+			float32(1 - RTT_BETA) * float32(this.meanDeviation / time.Microsecond) +
+			RTT_BETA * float32(absDuration((this.smoothedRTT - delta) / time.Microsecond))) * time.Microsecond
 		this.smoothedRTT = time.Duration(
-			(1 - RTT_ALPHA) * float32(this.smoothedRTT / time.Millisecond) +
-			RTT_ALPHA * float32(delta / time.Millisecond)) * time.Millisecond
+			float32(1 - RTT_ALPHA) * float32(this.smoothedRTT / time.Microsecond) +
+			RTT_ALPHA * float32(delta / time.Microsecond)) * time.Microsecond
 	}
 }
 
