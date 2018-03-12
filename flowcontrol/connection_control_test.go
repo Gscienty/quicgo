@@ -98,3 +98,110 @@ func TestConnectionAutoTurnWindow(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestSendFlowControlBlocked(t *testing.T) {
+	conn := ConnectionControlTestBefore(time.Duration(0))
+
+	conn.SetSendOffset(100)
+	if b, _ := conn.IsNewlyBlocked(); b {
+		t.Fail()
+	}
+	conn.AddSendedBytesCount(100)
+	blocked, off := conn.IsNewlyBlocked()
+	if blocked == false {
+		t.Fail()
+	}
+	if off != uint64(100) {
+		t.Fail()
+	}
+}
+
+func TestSendFlowControlNewlyBlocked(t *testing.T) {
+	conn := ConnectionControlTestBefore(time.Duration(0))
+
+	conn.SetSendOffset(100)
+	conn.AddSendedBytesCount(100)
+	newlyBlocked, offset := conn.IsNewlyBlocked()
+	if newlyBlocked != true {
+		t.Fail()
+	}
+	if offset != uint64(100) {
+		t.Fail()
+	}
+	newlyBlocked, _ = conn.IsNewlyBlocked()
+	if newlyBlocked != false {
+		t.Fail()
+	}
+	conn.SetSendOffset(150)
+	conn.AddSendedBytesCount(150)
+	newlyBlocked, _ = conn.IsNewlyBlocked()
+	if newlyBlocked != true {
+		t.Fail()
+	}
+}
+
+func TestSettingMinimumWindowSize(t *testing.T) {
+	conn := ConnectionControlTestBefore(time.Duration(0))
+	receiveSize := uint64(10000)
+	receiveWindowSize := uint64(1000)
+
+	conn.recvSize = receiveSize
+	conn.recvWindowSize = receiveWindowSize
+	oldWindowSize := conn.recvWindowSize
+	conn.maxRecvWindowSize = 3000
+
+	conn.EnsureRecvMinimumWindowSize(1800)
+	if conn.recvWindowSize != 1800 {
+		fmt.Printf("%d %d\n", conn.recvWindowSize, oldWindowSize)
+		t.Fail()
+	}
+}
+
+func TestSettingReduceWindowSize(t *testing.T) {
+	conn := ConnectionControlTestBefore(time.Duration(0))
+	receiveSize := uint64(10000)
+	receiveWindowSize := uint64(1000)
+
+	conn.recvSize = receiveSize
+	conn.recvWindowSize = receiveWindowSize
+	oldWindowSize := conn.recvWindowSize
+	conn.maxRecvWindowSize = 3000
+
+	conn.EnsureRecvMinimumWindowSize(1)
+	if conn.recvWindowSize != oldWindowSize {
+		fmt.Printf("%d %d\n", conn.recvWindowSize, oldWindowSize)
+		t.Fail()
+	}
+}
+
+func TestSettingBeyoundWindowSize(t *testing.T) {
+	conn := ConnectionControlTestBefore(time.Duration(0))
+	receiveSize := uint64(10000)
+	receiveWindowSize := uint64(1000)
+
+	conn.recvSize = receiveSize
+	conn.recvWindowSize = receiveWindowSize
+	conn.maxRecvWindowSize = 3000
+
+	max := conn.maxRecvWindowSize
+	conn.EnsureRecvMinimumWindowSize(2 * max)
+	if conn.recvWindowSize != max {
+		fmt.Printf("%d %d\n", conn.recvWindowSize, max)
+		t.Fail()
+	}
+}
+
+func TestSettingAfterWindowSize(t *testing.T) {
+	conn := ConnectionControlTestBefore(time.Duration(0))
+	receiveSize := uint64(10000)
+	receiveWindowSize := uint64(1000)
+
+	conn.recvSize = receiveSize
+	conn.recvWindowSize = receiveWindowSize
+	conn.maxRecvWindowSize = 3000
+
+	conn.EnsureRecvMinimumWindowSize(1912)
+	if conn.startAutoTuringTime.Before(time.Now().Add(-100 * time.Millisecond)) && conn.startAutoTuringTime.After(time.Now().Add(100 * time.Millisecond)) {
+		t.Fail()
+	}
+}

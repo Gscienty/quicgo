@@ -22,6 +22,14 @@ type StreamID struct {
 	id			uint64
 }
 
+func StreamIDNew(val uint64) *StreamID {
+	return &StreamID {
+		id: val >> 2,
+		perspective: uint8 (val & STREAM_PERSPECTIVE_MASK),
+		streamType: uint8 (val & STREAM_TYPE_MASK),
+	}
+}
+
 func StreamIDParse(b io.Reader) (*StreamID, error) {
 	sid, err := utils.VarLenIntegerStructParse(b)
 	if err != nil {
@@ -78,4 +86,8 @@ func (this *StreamID) SetType(streamType uint8) error {
 
 func (this *StreamID) GetType() uint8 {
 	return this.streamType
+}
+
+func (this *StreamID) Equal(other *StreamID) bool {
+	return this.id == other.id && this.perspective == other.perspective && this.streamType == other.streamType
 }
