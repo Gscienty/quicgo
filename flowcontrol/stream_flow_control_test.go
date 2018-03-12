@@ -39,7 +39,7 @@ func TestStreamFlowControlConstrctor(t *testing.T) {
 	if fc.maxRecvWindowSize != maxReceiveWindow {
 		t.Fail()
 	}
-	if fc.sendOffset != sendWindow {
+	if fc.sendSize != sendWindow {
 		t.Fail()
 	}
 	if fc.influenceConnection == false {
@@ -358,7 +358,7 @@ func TestStreamSendingData1(t *testing.T) {
 	ctr.recvBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
-	ctr.SetSendOffset(15)
+	ctr.SetSendSize(15)
 	ctr.AddSendedBytesCount(5)
 	if ctr.GetSendWindowSize() != uint64(10) {
 		t.Fail()
@@ -371,8 +371,8 @@ func TestStreamSendingData2(t *testing.T) {
 	ctr.recvBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
-	ctr.SetSendOffset(15)
-	ctr.connectionControl.SetSendOffset(1)
+	ctr.SetSendSize(15)
+	ctr.connectionControl.SetSendSize(1)
 	ctr.AddSendedBytesCount(5)
 	if ctr.GetSendWindowSize() != uint64(10) {
 		t.Fail()
@@ -386,8 +386,8 @@ func TestStreamSendingData3(t *testing.T) {
 	ctr.connectionControl.recvWindowSize = 120
 	
 	ctr.influenceConnection = true
-	ctr.connectionControl.SetSendOffset(12)
-	ctr.SetSendOffset(20)
+	ctr.connectionControl.SetSendSize(12)
+	ctr.SetSendSize(20)
 	ctr.AddSendedBytesCount(10)
 	if ctr.GetSendWindowSize() != uint64(2) {
 		fmt.Printf("%d\n", ctr.GetSendWindowSize())
@@ -402,8 +402,8 @@ func TestStreamSendingData4(t *testing.T) {
 	ctr.connectionControl.recvWindowSize = 120
 	
 	ctr.influenceConnection = true
-	ctr.connectionControl.SetSendOffset(50)
-	ctr.SetSendOffset(100)
+	ctr.connectionControl.SetSendSize(50)
+	ctr.SetSendSize(100)
 	ctr.AddSendedBytesCount(50)
 	blocked, _ := ctr.connectionControl.IsNewlyBlocked()
 	if blocked == false {

@@ -29,12 +29,12 @@ func ConnectionFlowControlNew(recvWindow uint64, maxRecvWindow uint64, rttStat *
 }
 
 func (this *connectionFlowControl) IsNewlyBlocked() (bool, uint64) {
-	if this.FlowControl.GetSendWindowSize() != 0 || this.sendOffset == this.lastBlockedAt {
+	if this.FlowControl.GetSendWindowSize() != 0 || this.sendSize == this.lastBlockedAt {
 		return false, 0
 	}
 
-	this.lastBlockedAt = this.sendOffset
-	return true, this.sendOffset
+	this.lastBlockedAt = this.sendSize
+	return true, this.sendSize
 }
 
 func (this *connectionFlowControl) AddHighestOffset(increment uint64) error {

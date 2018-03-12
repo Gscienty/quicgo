@@ -23,7 +23,7 @@ func TestSendAddBytesSent(t *testing.T) {
 func TestSendRemainWindow(t *testing.T) {
 	ctr := &FlowControl { }
 	ctr.sendedBytesCount = 5
-	ctr.sendOffset = 12
+	ctr.sendSize = 12
 	if ctr.GetSendWindowSize() != 12 - 5 {
 		t.Fail()
 	}
@@ -32,8 +32,8 @@ func TestSendRemainWindow(t *testing.T) {
 func TestSendUpdateWindow(t *testing.T) {
 	ctr := &FlowControl { }
 	ctr.AddSendedBytesCount(5)
-	ctr.SetSendOffset(15)
-	if ctr.sendOffset != 15 {
+	ctr.SetSendSize(15)
+	if ctr.sendSize != 15 {
 		t.Fail()
 	}
 	if ctr.GetSendWindowSize() != 15 - 5 {
@@ -44,7 +44,7 @@ func TestSendUpdateWindow(t *testing.T) {
 func TestSendZeroWindow(t *testing.T) {
 	ctr := &FlowControl { }
 	ctr.AddSendedBytesCount(15)
-	ctr.SetSendOffset(10)
+	ctr.SetSendSize(10)
 	if ctr.GetSendWindowSize() != 0 {
 		t.Fail()
 	}
@@ -52,11 +52,11 @@ func TestSendZeroWindow(t *testing.T) {
 
 func TestSendDecreaseWindow(t *testing.T) {
 	ctr := &FlowControl { }
-	ctr.SetSendOffset(20)
+	ctr.SetSendSize(20)
 	if ctr.GetSendWindowSize() != 20 {
 		t.Fail()
 	}
-	ctr.SetSendOffset(10)
+	ctr.SetSendSize(10)
 	if ctr.GetSendWindowSize() != 20 {
 		t.Fail()
 	}

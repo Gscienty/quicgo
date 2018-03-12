@@ -30,7 +30,7 @@ func StreamFlowControlNew(
 	connectionControl	*connectionFlowControl,
 	recvSize		uint64,
 	maxRecvWindowSize	uint64,
-	initialSendOffset	uint64,
+	initialSendSize	uint64,
 	rttStat				*utils.RTTStat,
 ) IStreamFlowControl {
 	return &streamFlowControl {
@@ -42,7 +42,7 @@ func StreamFlowControlNew(
 			recvSize:			recvSize,
 			recvWindowSize:		recvSize,
 			maxRecvWindowSize:	maxRecvWindowSize,
-			sendOffset:			initialSendOffset,
+			sendSize:		initialSendSize,
 		},
 	}
 }
@@ -52,7 +52,7 @@ func (this *streamFlowControl) IsBlocked() (bool, uint64) {
 		return false, 0
 	}
 
-	return true, this.sendOffset
+	return true, this.sendSize
 }
 
 func (this *streamFlowControl) UpdateRecvHighestOffset(offset uint64, final bool) error {

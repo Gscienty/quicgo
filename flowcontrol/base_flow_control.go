@@ -10,7 +10,7 @@ import(
 
 type IFlowControl interface {
 	GetSendWindowSize() uint64
-	SetSendOffset(uint64)
+	SetSendSize(uint64)
 
 	AddSendedBytesCount(uint64)
 	AddRecvedBytesCount(uint64)
@@ -20,7 +20,7 @@ type IFlowControl interface {
 
 type FlowControl struct {
 	sendedBytesCount		uint64
-	sendOffset				uint64
+	sendSize			uint64
 
 	recvRWLock				sync.RWMutex
 
@@ -36,15 +36,15 @@ type FlowControl struct {
 }
 
 func (this *FlowControl) GetSendWindowSize() uint64 {
-	if this.sendedBytesCount > this.sendOffset {
+	if this.sendedBytesCount > this.sendSize {
 		return 0
 	}
-	return this.sendOffset - this.sendedBytesCount
+	return this.sendSize - this.sendedBytesCount
 }
 
-func (this *FlowControl) SetSendOffset(offset uint64) {
-	if offset > this.sendOffset {
-		this.sendOffset = offset
+func (this *FlowControl) SetSendSize(size uint64) {
+	if size > this.sendSize {
+		this.sendSize = size
 	}
 }
 

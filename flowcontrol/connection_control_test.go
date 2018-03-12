@@ -103,7 +103,7 @@ func TestConnectionAutoTurnWindow(t *testing.T) {
 func TestSendFlowControlBlocked(t *testing.T) {
 	conn := ConnectionControlTestBefore(time.Duration(0))
 
-	conn.SetSendOffset(100)
+	conn.SetSendSize(100)
 	if b, _ := conn.IsNewlyBlocked(); b {
 		t.Fail()
 	}
@@ -120,7 +120,7 @@ func TestSendFlowControlBlocked(t *testing.T) {
 func TestSendFlowControlNewlyBlocked(t *testing.T) {
 	conn := ConnectionControlTestBefore(time.Duration(0))
 
-	conn.SetSendOffset(100)
+	conn.SetSendSize(100)
 	conn.AddSendedBytesCount(100)
 	newlyBlocked, offset := conn.IsNewlyBlocked()
 	if newlyBlocked != true {
@@ -133,7 +133,7 @@ func TestSendFlowControlNewlyBlocked(t *testing.T) {
 	if newlyBlocked != false {
 		t.Fail()
 	}
-	conn.SetSendOffset(150)
+	conn.SetSendSize(150)
 	conn.AddSendedBytesCount(150)
 	newlyBlocked, _ = conn.IsNewlyBlocked()
 	if newlyBlocked != true {
