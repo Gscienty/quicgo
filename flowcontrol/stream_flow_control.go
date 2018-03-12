@@ -125,3 +125,11 @@ func (this *streamFlowControl) AddRecvedBytesCount(n uint64) {
 		this.connectionControl.AddRecvedBytesCount(n)
 	}
 }
+
+func (this *streamFlowControl) GetSendWindowSize() uint64 {
+	windowSize := this.FlowControl.GetSendWindowSize()
+	if this.influenceConnection && this.connectionControl.GetSendWindowSize() < windowSize {
+		windowSize = this.connectionControl.GetSendWindowSize()
+	}
+	return windowSize
+}

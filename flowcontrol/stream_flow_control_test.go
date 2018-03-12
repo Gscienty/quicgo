@@ -305,5 +305,113 @@ func TestStreamTellConnectionFlowControlAutotuned(t *testing.T) {
 		t.Fail()
 	}
 }
+func TestStreamTellConnectionDoesntContribute(t *testing.T) {
+	ctr := streamFlowControlTestBefore()
+	ctr.recvSize = 100
+	ctr.recvWindowSize = 60
+	ctr.recvBytesCount = 100 - 60
+	ctr.connectionControl.recvWindowSize = 120
+	oldWindowSize := ctr.recvWindowSize
+	
+	oldoffset := ctr.recvBytesCount
+	ctr.influenceConnection = false
+	ctr.rttStat.Update(20 * time.Millisecond, 0, time.Time { })
+	ctr.startAutoTuringOffset = oldoffset
+	ctr.startAutoTuringTime = time.Now().Add(-time.Millisecond)
+	ctr.AddRecvedBytesCount(55)
+	offset := ctr.RecvWindowUpdate()
+	if offset == 0 {
+		t.Fail()
+	}
+	if ctr.recvWindowSize != 2 * oldWindowSize {
+		t.Fail()
+	}
+	if ctr.connectionControl.recvWindowSize != 2 * oldWindowSize {
+		t.Fail()
+	}
+}
+func TestStreamDoesntIncreaseWindowAfterFinalOffset(t *testing.T) {
+	ctr := streamFlowControlTestBefore()
+	ctr.recvSize = 100
+	ctr.recvWindowSize = 60
+	ctr.recvBytesCount = 100 - 60
+	ctr.connectionControl.recvWindowSize = 120
+	
+	ctr.AddRecvedBytesCount(30)
+	err := ctr.UpdateRecvHighestOffset(90, true)
+	if err != nil {
+		t.Fail()
+	}
+	if ctr.RecvWindowHasUpdate() == true {
+		t.Fail()
+	}
+	offset := ctr.RecvWindowUpdate()
+	if offset != 0 {
+		t.Fail()
+	}
+}
+func TestStreamSendingData1(t *testing.T) {
+	ctr := streamFlowControlTestBefore()
+	ctr.recvSize = 100
+	ctr.recvWindowSize = 60
+	ctr.recvBytesCount = 100 - 60
+	ctr.connectionControl.recvWindowSize = 120
+	
+	ctr.SetSendOffset(15)
+	ctr.AddSendedBytesCount(5)
+	if ctr.GetSendWindowSize() != uint64(10) {
+		t.Fail()
+	}
+}
+func TestStreamSendingData2(t *testing.T) {
+	ctr := streamFlowControlTestBefore()
+	ctr.recvSize = 100
+	ctr.recvWindowSize = 60
+	ctr.recvBytesCount = 100 - 60
+	ctr.connectionControl.recvWindowSize = 120
+	
+	ctr.SetSendOffset(15)
+	ctr.connectionControl.SetSendOffset(1)
+	ctr.AddSendedBytesCount(5)
+	if ctr.GetSendWindowSize() != uint64(10) {
+		t.Fail()
+	}
+}
+func TestStreamSendingData3(t *testing.T) {
+	ctr := streamFlowControlTestBefore()
+	ctr.recvSize = 100
+	ctr.recvWindowSize = 60
+	ctr.recvBytesCount = 100 - 60
+	ctr.connectionControl.recvWindowSize = 120
+	
+	ctr.influenceConnection = true
+	ctr.connectionControl.SetSendOffset(12)
+	ctr.SetSendOffset(20)
+	ctr.AddSendedBytesCount(10)
+	if ctr.GetSendWindowSize() != uint64(2) {
+		fmt.Printf("%d\n", ctr.GetSendWindowSize())
+		t.Fail()
+	}
+}
+func TestStreamSendingData4(t *testing.T) {
+	ctr := streamFlowControlTestBefore()
+	ctr.recvSize = 100
+	ctr.recvWindowSize = 60
+	ctr.recvBytesCount = 100 - 60
+	ctr.connectionControl.recvWindowSize = 120
+	
+	ctr.influenceConnection = true
+	ctr.connectionControl.SetSendOffset(50)
+	ctr.SetSendOffset(100)
+	ctr.AddSendedBytesCount(50)
+	blocked, _ := ctr.connectionControl.IsNewlyBlocked()
+	if blocked == false {
+		t.Fail()
+	}
+	blocked, _ = ctr.IsBlocked()
+	if blocked == false {
+		t.Fail()
+	}
+}
 
 
