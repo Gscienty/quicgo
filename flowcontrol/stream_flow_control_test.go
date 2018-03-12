@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"testing"
 	"../protocol"
+	"../utils"
 )
 
 func streamFlowControlTestBefore() *streamFlowControl {
-	rtt := &RTTStat { }
+	rtt := &utils.RTTStat { }
 	ctr := &streamFlowControl {
 		streamID: *protocol.StreamIDNew(uint64(10)),
 		connectionControl: ConnectionFlowControlNew(1000, 1000, rtt).(*connectionFlowControl),
@@ -21,7 +22,7 @@ func streamFlowControlTestBefore() *streamFlowControl {
 }
 
 func TestStreamFlowControlConstrctor(t *testing.T) {
-	rtt := &RTTStat { }
+	rtt := &utils.RTTStat { }
 	receiveSize := uint64(2000)
 	maxReceiveWindow := uint64(3000)
 	sendWindow := uint64(4000)

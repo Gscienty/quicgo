@@ -4,6 +4,7 @@ import(
 	"sync"
 	"time"
 	"../protocol"
+	"../utils"
 )
 
 
@@ -31,7 +32,7 @@ type FlowControl struct {
 
 	startAutoTuringTime		time.Time
 	startAutoTuringOffset	uint64
-	rttStat					*RTTStat
+	rttStat					*utils.RTTStat
 }
 
 func (this *FlowControl) GetSendWindowSize() uint64 {
@@ -67,7 +68,7 @@ func (this *FlowControl) adjustWindowSize() {
 		return
 	}
 
-	rtt := this.rttStat.smoothedRTT
+	rtt := this.rttStat.GetSmoothedRTT()
 	if rtt == 0 {
 		return
 	}

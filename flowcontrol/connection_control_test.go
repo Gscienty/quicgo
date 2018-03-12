@@ -1,6 +1,7 @@
 package flowcontrol
 
 import (
+	"../utils"
 	"fmt"
 	"testing"
 	"time"
@@ -8,7 +9,7 @@ import (
 
 func ConnectionControlTestBefore(t time.Duration) *connectionFlowControl {
 	conn := &connectionFlowControl { }
-	conn.rttStat = &RTTStat { }
+	conn.rttStat = &utils.RTTStat { }
 	return conn
 }
 
@@ -19,7 +20,7 @@ func ConnectionControlTestBeforeSetRTT(conn *connectionFlowControl, t time.Durat
 func TestConstructor(t *testing.T) {
 	recWin := uint64(2000)
 	maxRecWin := uint64(3000)
-	fc := ConnectionFlowControlNew(recWin, maxRecWin, &RTTStat { }).(*connectionFlowControl)
+	fc := ConnectionFlowControlNew(recWin, maxRecWin, &utils.RTTStat { }).(*connectionFlowControl)
 
 	if fc.recvSize != recWin {
 		t.Fail()

@@ -7,6 +7,7 @@ import (
 	"time"
 	"testing"
 	"../protocol"
+	"../utils"
 )
 
 func TestSendAddBytesSent(t *testing.T) {
@@ -78,7 +79,7 @@ func TestRecvTrigger(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
@@ -100,7 +101,7 @@ func TestRectNonTrigger(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
@@ -119,7 +120,7 @@ func TestRectAutoTuring(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
@@ -136,7 +137,7 @@ func TestRectAutoTuring(t *testing.T) {
 
 func setRTT(ctr *FlowControl, d time.Duration, t *testing.T) {
 	ctr.rttStat.Update(d, 0, time.Now())
-	if (ctr.rttStat.smoothedRTT != d) {
+	if (ctr.rttStat.GetSmoothedRTT() != d) {
 		t.Fail()
 	}
 }
@@ -145,7 +146,7 @@ func TestRectAutoTuring2(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
@@ -177,7 +178,7 @@ func TestRectAutoTuring3(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
@@ -212,7 +213,7 @@ func TestRectAutoTuring4(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
@@ -247,7 +248,7 @@ func TestRectAutoTuring5(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
@@ -282,7 +283,7 @@ func TestRectAutoTuring6(t *testing.T) {
 	receiveLength := uint64(10000)
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
-	ctr.rttStat = &RTTStat { }
+	ctr.rttStat = &utils.RTTStat { }
 	ctr.recvBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength

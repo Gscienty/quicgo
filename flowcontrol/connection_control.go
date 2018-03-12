@@ -1,5 +1,9 @@
 package flowcontrol
 
+import(
+	"../utils"
+)
+
 type IConnectionFlowControl interface {
 	IFlowControl
 
@@ -13,7 +17,7 @@ type connectionFlowControl struct {
 
 var _ IConnectionFlowControl = &connectionFlowControl { }
 
-func ConnectionFlowControlNew(recvWindow uint64, maxRecvWindow uint64, rttStat *RTTStat) IConnectionFlowControl {
+func ConnectionFlowControlNew(recvWindow uint64, maxRecvWindow uint64, rttStat *utils.RTTStat) IConnectionFlowControl {
 	return &connectionFlowControl {
 		FlowControl: FlowControl {
 			rttStat:			rttStat,

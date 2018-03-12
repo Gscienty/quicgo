@@ -1,4 +1,4 @@
-package flowcontrol
+package utils
 
 import(
 	"math"
@@ -34,6 +34,39 @@ type RTTStat struct {
 	halfWindowRTT		RTT
 	quarterWindowRTT	RTT
 }
+
+func (this *RTTStat) GetRecentMinRTTWindow() time.Duration {
+	return this.recentMinRTTWindow
+}
+func (this *RTTStat) GetMinRTT() time.Duration {
+	return this.minRTT
+}
+func (this *RTTStat) GetLastestRTT() time.Duration {
+	return this.lastestRTT
+}
+func (this *RTTStat) GetSmoothedRTT() time.Duration {
+	return this.smoothedRTT
+}
+func (this *RTTStat) GetMeanDeviation() time.Duration {
+	return this.meanDeviation
+}
+func (this *RTTStat) GetSamplesCount() uint64 {
+	return this.samplesCount
+}
+
+func (this *RTTStat) GetCurrentMinRTT() time.Duration {
+	return this.currentMinRTT.rtt
+}
+func (this *RTTStat) GetRecentMinRTT() time.Duration {
+	return this.recentMinRTT.rtt
+}
+func (this *RTTStat) GetHalfWindowRTT() time.Duration {
+	return this.halfWindowRTT.rtt
+}
+func (this *RTTStat) GetQuarterWindowRTT() time.Duration {
+	return this.quarterWindowRTT.rtt
+}
+
 
 func absDuration(t time.Duration) time.Duration {
 	if t < 0 {

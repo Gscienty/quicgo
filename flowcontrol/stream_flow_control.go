@@ -3,6 +3,7 @@ package flowcontrol
 import (
 	"errors"
 	"../protocol"
+	"../utils"
 )
 
 type IStreamFlowControl interface {
@@ -30,7 +31,7 @@ func StreamFlowControlNew(
 	recvSize		uint64,
 	maxRecvWindowSize	uint64,
 	initialSendOffset	uint64,
-	rttStat				*RTTStat,
+	rttStat				*utils.RTTStat,
 ) IStreamFlowControl {
 	return &streamFlowControl {
 		streamID:				streamID,
