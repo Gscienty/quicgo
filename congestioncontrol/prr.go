@@ -17,7 +17,7 @@ func (this *PRR) SendCount(n uint64) {
 	this.sentBytesCountSinceLoss += n
 }
 
-func (this *PRR) PacketLost(inSendingCount uint64) {
+func (this *PRR) Lost(inSendingCount uint64) {
 	this.sentBytesCountSinceLoss = 0
 	this.deliveredBytesCountSinceLoss = 0
 	this.ackCountSinceLoss = 0
