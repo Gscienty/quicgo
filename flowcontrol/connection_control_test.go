@@ -33,10 +33,10 @@ func TestConstructor(t *testing.T) {
 func TestReceiveFlowControl(t *testing.T) {
 	conn := ConnectionControlTestBefore(time.Duration(0))
 
-	conn.recvHighestOffset = 1337
-	conn.AddHighestOffset(123)
-	if conn.recvHighestOffset != uint64(1337 + 123) {
-		fmt.Printf("%d %d\n", conn.recvHighestOffset, uint64(1337 + 123))
+	conn.recvCapacity = 1337
+	conn.AddRecvCapacity(123)
+	if conn.recvCapacity != uint64(1337 + 123) {
+		fmt.Printf("%d %d\n", conn.recvCapacity, uint64(1337 + 123))
 		t.Fail()
 	}
 }
@@ -44,20 +44,20 @@ func TestReceiveFlowControl(t *testing.T) {
 func TestConnectionWindowUpdate(t *testing.T) {
 	conn := ConnectionControlTestBefore(time.Duration(0))
 
-	conn.recvHighestOffset = 1337
-	conn.AddHighestOffset(123)
-	if conn.recvHighestOffset != uint64(1337 + 123) {
-		fmt.Printf("%d %d\n", conn.recvHighestOffset, uint64(1337 + 123))
+	conn.recvCapacity = 1337
+	conn.AddRecvCapacity(123)
+	if conn.recvCapacity != uint64(1337 + 123) {
+		fmt.Printf("%d %d\n", conn.recvCapacity, uint64(1337 + 123))
 		t.Fail()
 	}
 
 	conn.recvSize = 100
 	conn.recvWindowSize = 60
 	conn.maxRecvWindowSize = 1000
-	conn.recvBytesCount = 100 - 60
+	conn.recvedBytesCount = 100 - 60
 
 	ws := conn.recvWindowSize
-	of := conn.recvBytesCount
+	of := conn.recvedBytesCount
 	dr := ws / 2 - 1
 	conn.AddRecvedBytesCount(dr)
 	f := conn.RecvWindowUpdate()
@@ -70,19 +70,19 @@ func TestConnectionWindowUpdate(t *testing.T) {
 func TestConnectionAutoTurnWindow(t *testing.T) {
 	conn := ConnectionControlTestBefore(time.Duration(0))
 
-	conn.recvHighestOffset = 1337
-	conn.AddHighestOffset(123)
-	if conn.recvHighestOffset != uint64(1337 + 123) {
-		fmt.Printf("%d %d\n", conn.recvHighestOffset, uint64(1337 + 123))
+	conn.recvCapacity = 1337
+	conn.AddRecvCapacity(123)
+	if conn.recvCapacity != uint64(1337 + 123) {
+		fmt.Printf("%d %d\n", conn.recvCapacity, uint64(1337 + 123))
 		t.Fail()
 	}
 
 	conn.recvSize = 100
 	conn.recvWindowSize = 60
 	conn.maxRecvWindowSize = 1000
-	conn.recvBytesCount = 100 - 60
+	conn.recvedBytesCount = 100 - 60
 
-	of := conn.recvBytesCount
+	of := conn.recvedBytesCount
 	ows := conn.recvWindowSize
 	rtt := scaleDuration(20 * time.Millisecond)
 	ConnectionControlTestBeforeSetRTT(conn, rtt)

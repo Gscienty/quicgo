@@ -55,12 +55,12 @@ func TestStreamReceivingDataUpdateHighestReceived(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	ctr.recvHighestOffset = 1337
-	err := ctr.UpdateRecvHighestOffset(1338, false)
+	ctr.recvCapacity = 1337
+	err := ctr.UpdateRecvCapacity(1338, false)
 	if err != nil {
 		t.Fail()
 	}
-	if ctr.recvHighestOffset != uint64(1338) {
+	if ctr.recvCapacity != uint64(1338) {
 		t.Fail()
 	}
 }
@@ -71,14 +71,14 @@ func TestStreamReceivingDataUpdateInformConnectionController(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	ctr.recvHighestOffset = 10
+	ctr.recvCapacity = 10
 	ctr.influenceConnection = true
-	ctr.connectionControl.recvHighestOffset = 100
-	err := ctr.UpdateRecvHighestOffset(20, false)
+	ctr.connectionControl.recvCapacity = 100
+	err := ctr.UpdateRecvCapacity(20, false)
 	if err != nil {
 		t.Fail()
 	}
-	if ctr.connectionControl.recvHighestOffset != uint64(100 + 10) {
+	if ctr.connectionControl.recvCapacity != uint64(100 + 10) {
 		t.Fail()
 	}
 }
@@ -90,13 +90,13 @@ func TestStreamReceivingDataUpdateDoesntInformConnectionController(t *testing.T)
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	ctr.recvHighestOffset = 10
-	ctr.connectionControl.recvHighestOffset = 100
-	err := ctr.UpdateRecvHighestOffset(20, false)
+	ctr.recvCapacity = 10
+	ctr.connectionControl.recvCapacity = 100
+	err := ctr.UpdateRecvCapacity(20, false)
 	if err != nil {
 		t.Fail()
 	}
-	if ctr.connectionControl.recvHighestOffset != uint64(100) {
+	if ctr.connectionControl.recvCapacity != uint64(100) {
 		t.Fail()
 	}
 }
@@ -108,17 +108,17 @@ func TestStreamDoesNotDecreaseHighestReceived(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	ctr.recvHighestOffset = 1337
-	err := ctr.UpdateRecvHighestOffset(1337, false)
+	ctr.recvCapacity = 1337
+	err := ctr.UpdateRecvCapacity(1337, false)
 	if err != nil {
 		t.Fail()
 	}
 
-	err = ctr.UpdateRecvHighestOffset(1000, false)
+	err = ctr.UpdateRecvCapacity(1000, false)
 	if err != nil {
 		t.Fail()
 	}
-	if ctr.recvHighestOffset != uint64(1337) {
+	if ctr.recvCapacity != uint64(1337) {
 		t.Fail()
 	}
 }
@@ -130,23 +130,23 @@ func TestStreamDetectsFlowControlViolation(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	err := ctr.UpdateRecvHighestOffset(receiveSize + 1, false)
+	err := ctr.UpdateRecvCapacity(receiveSize + 1, false)
 	if err == nil {
 		t.Fail()
 	}
 	fmt.Println(err.Error())
 
-	ctr.recvHighestOffset = 100
-	err = ctr.UpdateRecvHighestOffset(101, true)
+	ctr.recvCapacity = 100
+	err = ctr.UpdateRecvCapacity(101, true)
 	if err != nil {
 		t.Fail()
 	}
-	if ctr.recvHighestOffset != uint64(101) {
+	if ctr.recvCapacity != uint64(101) {
 		t.Fail()
 	}
 
-	ctr.recvHighestOffset = 100
-	err = ctr.UpdateRecvHighestOffset(99, true)
+	ctr.recvCapacity = 100
+	err = ctr.UpdateRecvCapacity(99, true)
 	if err == nil {
 		t.Fail()
 	}
@@ -160,11 +160,11 @@ func TestStreamReceivingAFinalOffset(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	err := ctr.UpdateRecvHighestOffset(300, true)
+	err := ctr.UpdateRecvCapacity(300, true)
 	if err != nil {
 		t.Fail()
 	}
-	err = ctr.UpdateRecvHighestOffset(250, false)
+	err = ctr.UpdateRecvCapacity(250, false)
 	if err != nil {
 		t.Fail()
 	}
@@ -177,11 +177,11 @@ func TestStreamReceivingAHigherOffsetAfterFinalOffset(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	err := ctr.UpdateRecvHighestOffset(200, true)
+	err := ctr.UpdateRecvCapacity(200, true)
 	if err != nil {
 		t.Fail()
 	}
-	err = ctr.UpdateRecvHighestOffset(250, false)
+	err = ctr.UpdateRecvCapacity(250, false)
 	if err == nil {
 		t.Fail()
 	}
@@ -195,15 +195,15 @@ func TestStreamAcceptsDuplicateFinalOffset(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	err := ctr.UpdateRecvHighestOffset(200, true)
+	err := ctr.UpdateRecvCapacity(200, true)
 	if err != nil {
 		t.Fail()
 	}
-	err = ctr.UpdateRecvHighestOffset(200, true)
+	err = ctr.UpdateRecvCapacity(200, true)
 	if err != nil {
 		t.Fail()
 	}
-	if ctr.recvHighestOffset != uint64(200) {
+	if ctr.recvCapacity != uint64(200) {
 		t.Fail()
 	}
 }
@@ -215,11 +215,11 @@ func TestStreamReceivingInconsistentFinalOffset(t *testing.T) {
 	ctr.recvSize = receiveSize
 	ctr.recvWindowSize = receiveWindowSize
 
-	err := ctr.UpdateRecvHighestOffset(200, true)
+	err := ctr.UpdateRecvCapacity(200, true)
 	if err != nil {
 		t.Fail()
 	}
-	err = ctr.UpdateRecvHighestOffset(201, true)
+	err = ctr.UpdateRecvCapacity(201, true)
 	if err == nil {
 		t.Fail()
 	}
@@ -234,10 +234,10 @@ func TestStreamSaveReadOnStreamNotContributingConnection(t *testing.T) {
 	ctr.recvWindowSize = receiveWindowSize
 
 	ctr.AddRecvedBytesCount(100)
-	if ctr.recvBytesCount != uint64(100) {
+	if ctr.recvedBytesCount != uint64(100) {
 		t.Fail()
 	}
-	if ctr.connectionControl.recvBytesCount != 0 {
+	if ctr.connectionControl.recvedBytesCount != 0 {
 		t.Fail()
 	}
 }
@@ -251,10 +251,10 @@ func TestStreamSaveReadOnStreamNotContributingConnection2(t *testing.T) {
 
 	ctr.influenceConnection = true
 	ctr.AddRecvedBytesCount(200)
-	if ctr.recvBytesCount != uint64(200) {
+	if ctr.recvedBytesCount != uint64(200) {
 		t.Fail()
 	}
-	if ctr.connectionControl.recvBytesCount != uint64(200) {
+	if ctr.connectionControl.recvedBytesCount != uint64(200) {
 		t.Fail()
 	}
 }
@@ -263,7 +263,7 @@ func TestStreamTellWindowUpdate(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
 	if ctr.RecvWindowHasUpdate() {
@@ -284,11 +284,11 @@ func TestStreamTellConnectionFlowControlAutotuned(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	oldWindowSize := ctr.recvWindowSize
 	
-	oldoffset := ctr.recvBytesCount
+	oldoffset := ctr.recvedBytesCount
 	ctr.influenceConnection = true
 	ctr.rttStat.Update(20 * time.Millisecond, 0, time.Time { })
 	ctr.startAutoTuringOffset = oldoffset
@@ -310,11 +310,11 @@ func TestStreamTellConnectionDoesntContribute(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	oldWindowSize := ctr.recvWindowSize
 	
-	oldoffset := ctr.recvBytesCount
+	oldoffset := ctr.recvedBytesCount
 	ctr.influenceConnection = false
 	ctr.rttStat.Update(20 * time.Millisecond, 0, time.Time { })
 	ctr.startAutoTuringOffset = oldoffset
@@ -335,11 +335,11 @@ func TestStreamDoesntIncreaseWindowAfterFinalOffset(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
 	ctr.AddRecvedBytesCount(30)
-	err := ctr.UpdateRecvHighestOffset(90, true)
+	err := ctr.UpdateRecvCapacity(90, true)
 	if err != nil {
 		t.Fail()
 	}
@@ -355,7 +355,7 @@ func TestStreamSendingData1(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
 	ctr.SetSendSize(15)
@@ -368,7 +368,7 @@ func TestStreamSendingData2(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
 	ctr.SetSendSize(15)
@@ -382,7 +382,7 @@ func TestStreamSendingData3(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
 	ctr.influenceConnection = true
@@ -398,7 +398,7 @@ func TestStreamSendingData4(t *testing.T) {
 	ctr := streamFlowControlTestBefore()
 	ctr.recvSize = 100
 	ctr.recvWindowSize = 60
-	ctr.recvBytesCount = 100 - 60
+	ctr.recvedBytesCount = 100 - 60
 	ctr.connectionControl.recvWindowSize = 120
 	
 	ctr.influenceConnection = true

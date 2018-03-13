@@ -64,13 +64,13 @@ func TestSendDecreaseWindow(t *testing.T) {
 
 func TestRecvAddRecv(t *testing.T) {
 	ctr := &FlowControl { }
-	ctr.recvBytesCount = 10000 - 1000
+	ctr.recvedBytesCount = 10000 - 1000
 	ctr.recvWindowSize = 1000
 	ctr.recvSize = 10000
 
-	ctr.recvBytesCount = 5
+	ctr.recvedBytesCount = 5
 	ctr.AddRecvedBytesCount(6)
-	if ctr.recvBytesCount != 5 + 6 {
+	if ctr.recvedBytesCount != 5 + 6 {
 		t.Fail()
 	}
 }
@@ -80,14 +80,14 @@ func TestRecvTrigger(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
 	byteConsumed := float64(receiveWindowSize) * protocol.RECV_WINDOW_UPDATE_THREHOLD + 1
 	byteRemaining := receiveWindowSize - uint64(byteConsumed)
 	readPosition := receiveLength - byteRemaining
-	ctr.recvBytesCount = readPosition
+	ctr.recvedBytesCount = readPosition
 	offset := ctr.recvWindowUpdate()
 	if offset != readPosition + 1000 {
 		t.Fail()
@@ -102,14 +102,14 @@ func TestRectNonTrigger(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
 	byteConsumed := float64(receiveWindowSize) * protocol.RECV_WINDOW_UPDATE_THREHOLD - 1
 	byteRemaining := receiveWindowSize - uint64(byteConsumed)
 	readPosition := receiveLength - byteRemaining
-	ctr.recvBytesCount = readPosition
+	ctr.recvedBytesCount = readPosition
 	offset := ctr.recvWindowUpdate()
 	if offset != 0 {
 		t.Fail()
@@ -121,14 +121,14 @@ func TestRectAutoTuring(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
 	oldWindowSize := ctr.recvWindowSize
 	ctr.maxRecvWindowSize = 5000
 
-	ctr.adjustWindowSize()
+	ctr.adjustRecvWindowSize()
 	if ctr.recvWindowSize != oldWindowSize {
 		t.Fail()
 	}
@@ -147,7 +147,7 @@ func TestRectAutoTuring2(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
@@ -179,18 +179,18 @@ func TestRectAutoTuring3(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
 	oldWindowSize := ctr.recvWindowSize
 	ctr.maxRecvWindowSize = 5000
 
-	bytesread := ctr.recvBytesCount
+	bytesread := ctr.recvedBytesCount
 	rtt := scaleDuration(20 * time.Millisecond)
 	setRTT(ctr, rtt, t)
 	dataRead := receiveWindowSize * 2 / 3 + 1
-	ctr.startAutoTuringOffset = ctr.recvBytesCount
+	ctr.startAutoTuringOffset = ctr.recvedBytesCount
 	ctr.startAutoTuringTime = time.Now().Add(-rtt * 4 * 2 / 3)
 	ctr.AddRecvedBytesCount(dataRead)
 	offset := ctr.recvWindowUpdate()
@@ -214,18 +214,18 @@ func TestRectAutoTuring4(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
 	oldWindowSize := ctr.recvWindowSize
 	ctr.maxRecvWindowSize = 5000
 
-	bytesread := ctr.recvBytesCount
+	bytesread := ctr.recvedBytesCount
 	rtt := scaleDuration(20 * time.Millisecond)
 	setRTT(ctr, rtt, t)
 	dataRead := receiveWindowSize * 1 / 3 + 1
-	ctr.startAutoTuringOffset = ctr.recvBytesCount
+	ctr.startAutoTuringOffset = ctr.recvedBytesCount
 	ctr.startAutoTuringTime = time.Now().Add(-rtt * 4 * 1 / 3)
 	ctr.AddRecvedBytesCount(dataRead)
 	offset := ctr.recvWindowUpdate()
@@ -249,18 +249,18 @@ func TestRectAutoTuring5(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
 	oldWindowSize := ctr.recvWindowSize
 	ctr.maxRecvWindowSize = 5000
 
-	bytesread := ctr.recvBytesCount
+	bytesread := ctr.recvedBytesCount
 	rtt := scaleDuration(20 * time.Millisecond)
 	setRTT(ctr, rtt, t)
 	dataRead := receiveWindowSize * 2 / 3 - 1
-	ctr.startAutoTuringOffset = ctr.recvBytesCount
+	ctr.startAutoTuringOffset = ctr.recvedBytesCount
 	ctr.startAutoTuringTime = time.Now().Add(-rtt * 4 * 2 / 3)
 	ctr.AddRecvedBytesCount(dataRead)
 	offset := ctr.recvWindowUpdate()
@@ -284,7 +284,7 @@ func TestRectAutoTuring6(t *testing.T) {
 	receiveWindowSize := uint64(1000)
 	ctr := &FlowControl { }
 	ctr.rttStat = &utils.RTTStat { }
-	ctr.recvBytesCount = receiveLength - receiveWindowSize
+	ctr.recvedBytesCount = receiveLength - receiveWindowSize
 	ctr.recvWindowSize = receiveWindowSize
 	ctr.recvSize = receiveLength
 
@@ -293,30 +293,30 @@ func TestRectAutoTuring6(t *testing.T) {
 
 	reset := func() {
 		ctr.startAutoTuringTime = time.Now().Add(-time.Millisecond)
-		ctr.startAutoTuringOffset = ctr.recvBytesCount
+		ctr.startAutoTuringOffset = ctr.recvedBytesCount
 		ctr.AddRecvedBytesCount(ctr.recvWindowSize / 2 + 1)
 	}
 
 	setRTT(ctr, scaleDuration(20 * time.Millisecond), t)
 	reset()
-	ctr.adjustWindowSize()
+	ctr.adjustRecvWindowSize()
 	if ctr.recvWindowSize != 2 * oldWindowSize {
 		fmt.Printf("ctr.recvWindowSize != 2 * oldWindowSize [%d]\n", ctr.recvWindowSize)
 		t.Fail()
 	}
 	reset()
-	ctr.adjustWindowSize()
+	ctr.adjustRecvWindowSize()
 	if ctr.recvWindowSize != 2 * 2 * oldWindowSize {
 		fmt.Printf("ctr.recvWindowSize != 2 * 2 * oldWindowSize [%d]\n", ctr.recvWindowSize)
 		t.Fail()
 	}
 	reset()
-	ctr.adjustWindowSize()
+	ctr.adjustRecvWindowSize()
 	if ctr.recvWindowSize != ctr.maxRecvWindowSize {
 		fmt.Printf("ctr.recvWindowSize != ctr.maxRecvWindowSize (once) [%d]\n", ctr.recvWindowSize)
 		t.Fail()
 	}
-	ctr.adjustWindowSize()
+	ctr.adjustRecvWindowSize()
 	if ctr.recvWindowSize != ctr.maxRecvWindowSize {
 		fmt.Printf("ctr.recvWindowSize != ctr.maxRecvWindowSize (twice) [%d]\n", ctr.recvWindowSize)
 		t.Fail()

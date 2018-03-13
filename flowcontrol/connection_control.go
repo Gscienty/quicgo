@@ -37,11 +37,11 @@ func (this *connectionFlowControl) IsNewlyBlocked() (bool, uint64) {
 	return true, this.sendSize
 }
 
-func (this *connectionFlowControl) AddHighestOffset(increment uint64) error {
+func (this *connectionFlowControl) AddRecvCapacity(increment uint64) error {
 	this.recvRWLock.Lock()
 	defer this.recvRWLock.Unlock()
 
-	this.recvHighestOffset += increment
+	this.recvCapacity += increment
 
 	return nil
 }

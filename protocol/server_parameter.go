@@ -2,3 +2,4 @@ package protocol
 
 const RECV_WINDOW_UPDATE_THREHOLD		= 0.25
 const CONNECTION_FLOW_CONTROL_MULTIPLIER= 1.5
+const DEFAULT_TCP_MSS					= uint64(1460)

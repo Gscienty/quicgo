@@ -20,15 +20,15 @@ type IFlowControl interface {
 
 type FlowControl struct {
 	sendedBytesCount		uint64
-	sendSize			uint64
+	sendSize				uint64
 
 	recvRWLock				sync.RWMutex
 
 	recvSize				uint64
+	recvedBytesCount		uint64
 	recvWindowSize			uint64
 	maxRecvWindowSize		uint64
-	recvBytesCount			uint64
-	recvHighestOffset		uint64
+	recvCapacity			uint64
 
 	startAutoTuringTime		time.Time
 	startAutoTuringOffset	uint64
@@ -56,14 +56,14 @@ func (this *FlowControl) AddRecvedBytesCount(n uint64) {
 	this.recvRWLock.Lock()
 	defer this.recvRWLock.Unlock()
 
-	if this.recvBytesCount == 0 {
+	if this.recvedBytesCount == 0 {
 		this.startAutoTuring()
 	}
-	this.recvBytesCount += n
+	this.recvedBytesCount += n
 }
 
-func (this *FlowControl) adjustWindowSize() {
-	bytesReadInDuringCount := this.recvBytesCount - this.startAutoTuringOffset
+func (this *FlowControl) adjustRecvWindowSize() {
+	bytesReadInDuringCount := this.recvedBytesCount - this.startAutoTuringOffset
 	if bytesReadInDuringCount < this.recvWindowSize / 2 {
 		return
 	}
@@ -87,11 +87,11 @@ func (this *FlowControl) adjustWindowSize() {
 
 func (this *FlowControl) startAutoTuring() {
 	this.startAutoTuringTime = time.Now()
-	this.startAutoTuringOffset = this.recvBytesCount
+	this.startAutoTuringOffset = this.recvedBytesCount
 }
 
 func (this *FlowControl) recvWindowHasUpdate() bool {
-	remain := this.recvSize - this.recvBytesCount
+	remain := this.recvSize - this.recvedBytesCount
 	return remain <= uint64(float64(this.recvWindowSize) * float64(1 - protocol.RECV_WINDOW_UPDATE_THREHOLD))
 }
 
@@ -100,7 +100,7 @@ func (this *FlowControl) recvWindowUpdate() uint64 {
 		return 0
 	}
 
-	this.adjustWindowSize()
-	this.recvSize = this.recvBytesCount + this.recvWindowSize
+	this.adjustRecvWindowSize()
+	this.recvSize = this.recvedBytesCount + this.recvWindowSize
 	return this.recvSize
 }

@@ -10,7 +10,7 @@ type IStreamFlowControl interface {
 	IFlowControl
 
 	IsBlocked() (bool, uint64)
-	UpdateRecvHighestOffset(uint64, bool) error
+	UpdateRecvCapacity(uint64, bool) error
 	RecvWindowHasUpdate() bool
 }
 
@@ -28,9 +28,9 @@ func StreamFlowControlNew(
 	streamID			protocol.StreamID,
 	influenceConnection	bool,
 	connectionControl	*connectionFlowControl,
-	recvSize		uint64,
+	recvSize			uint64,
 	maxRecvWindowSize	uint64,
-	initialSendSize	uint64,
+	initialSendSize		uint64,
 	rttStat				*utils.RTTStat,
 ) IStreamFlowControl {
 	return &streamFlowControl {
@@ -42,7 +42,7 @@ func StreamFlowControlNew(
 			recvSize:			recvSize,
 			recvWindowSize:		recvSize,
 			maxRecvWindowSize:	maxRecvWindowSize,
-			sendSize:		initialSendSize,
+			sendSize:			initialSendSize,
 		},
 	}
 }
@@ -55,33 +55,33 @@ func (this *streamFlowControl) IsBlocked() (bool, uint64) {
 	return true, this.sendSize
 }
 
-func (this *streamFlowControl) UpdateRecvHighestOffset(offset uint64, final bool) error {
+func (this *streamFlowControl) UpdateRecvCapacity(offset uint64, final bool) error {
 	this.recvRWLock.Lock()
 	defer this.recvRWLock.Unlock()
 
-	if final && this.recvFinalOffset && offset != this.recvHighestOffset {
-		return errors.New ("final error")
+	if final && this.recvFinalOffset && offset != this.recvCapacity {
+		return errors.New("final error")
 	}
-	if this.recvFinalOffset && offset > this.recvHighestOffset {
-		return errors.New ("overflow")
+	if this.recvFinalOffset && offset > this.recvCapacity {
+		return errors.New("overflow")
 	}
 	this.recvFinalOffset = final
-	if offset == this.recvHighestOffset {
+	if offset == this.recvCapacity {
 		return nil
 	}
-	if offset < this.recvHighestOffset {
+	if offset < this.recvCapacity {
 		if final {
-			return errors.New ("termination early")
+			return errors.New("termination early")
 		}
 		return nil
 	}
-	increment := offset - this.recvHighestOffset
-	this.recvHighestOffset = offset
-	if this.recvHighestOffset > this.recvSize {
-		return errors.New ("recevied too much data")
+	increment := offset - this.recvCapacity
+	this.recvCapacity = offset
+	if this.recvCapacity > this.recvSize {
+		return errors.New("recevied too much data")
 	}
 	if this.influenceConnection {
-		return this.connectionControl.AddHighestOffset(increment)
+		return this.connectionControl.AddRecvCapacity(increment)
 	}
 	return nil
 }
