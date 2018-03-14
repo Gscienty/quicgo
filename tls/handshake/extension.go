@@ -1,0 +1,33 @@
+package handshake
+
+type ExtensionType uint16
+
+const (
+	EXTENSION_TYPE_SERVER_NAME								= ExtensionType(0)
+	EXTENSION_TYPE_MAX_FRAGMENT_LENGTH						= ExtensionType(1)
+	EXTENSION_TYPE_STATUS_REQUEST							= ExtensionType(5)
+	EXTENSION_TYPE_SUPPORTED_GROUPS							= ExtensionType(10)
+	EXTENSION_TYPE_SIGNATURE_ALGORITHMS						= ExtensionType(13)
+	EXTENSION_TYPE_USE_SRTP									= ExtensionType(14)
+	EXTENSION_TYPE_HEARTBEAT								= ExtensionType(15)
+	EXTENSION_TYPE_APPLICATION_LAYER_PROTOCOL_NEGOTIATION	= ExtensionType(16)
+	EXTENSION_TYPE_SIGNED_CERTIFICATE_TIMESTAMP				= ExtensionType(18)
+	EXTENSION_TYPE_CLIENT_CERTIFICATE_TYPE					= ExtensionType(19)
+	EXTENSION_TYPE_SERVER_CERTIFICATE_TYPE					= ExtensionType(20)
+	EXTENSION_TYPE_PADDING									= ExtensionType(21)
+	EXTENSION_TYPE_PRE_SHARED_KEY							= ExtensionType(41)
+	EXTENSION_TYPE_EARLY_DATA								= ExtensionType(42)
+	EXTENSION_TYPE_SUPPORTED_VERSIONS						= ExtensionType(43)
+	EXTENSION_TYPE_COOKIE									= ExtensionType(44)
+	EXTENSION_TYPE_PSK_KEY_EXCHANGE_MODES					= ExtensionType(45)
+	EXTENSION_TYPE_CERTIFICATE_AUTHORITIES					= ExtensionType(47)
+	EXTENSION_TYPE_OID_FILTERS								= ExtensionType(48)
+	EXTENSION_TYPE_POST_HANDSHAKE_AUTH						= ExtensionType(49)
+	EXTENSION_TYPE_SIGNATURE_ALGORITHMS_CERT				= ExtensionType(50)
+	EXTENSION_TYPE_KEY_SHARE								= ExtensionType(51)
+)
+
+type Extension struct {
+	Type	ExtensionType
+	Data	[]byte
+}
