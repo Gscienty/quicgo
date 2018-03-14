@@ -1,7 +1,13 @@
 package protocol
 
+import (
+	"time"
+)
+
 const RECV_WINDOW_UPDATE_THREHOLD		= 0.25
 const CONNECTION_FLOW_CONTROL_MULTIPLIER= 1.5
 const DEFAULT_TCP_MSS					= uint64(1460)
 const CRYPTO_MAX_PARAMS					= 128
 const CRYPTO_PARAMETER_MAX_LENGTH		= 4000
+const MIN_REMOTE_IDLE_TIMEOUT			= 5 * time.Second
+const MAX_RECEIVE_PACKET_SIZE			= 1452
