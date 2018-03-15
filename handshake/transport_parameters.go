@@ -27,6 +27,44 @@ type TransportParameter struct {
 	Value		[]byte
 }
 
+func (this *TransportParameter) Serialize(b *bytes.Buffer) error {
+	utils.BigEndian.WriteUInt(b, uint64(this.Parameter), 2)
+	utils.BigEndian.WriteUInt(b, uint64(len(this.Value)), 2)
+	writedLen, err := b.Write(this.Value)
+	if err != nil {
+		return err
+	}
+	if writedLen != len(this.Value) {
+		return errors.New("writed length not equal")
+	}
+	return nil
+}
+
+func (this *TransportParameter) Parse(b *bytes.Reader) (int, error) {
+	parameterID, err := utils.BigEndian.ReadUInt(b, 2)
+	if err != nil {
+		return 0, err
+	}
+	valueLength, err := utils.BigEndian.ReadUInt(b, 2)
+	if err != nil {
+		return 0, err
+	}
+
+	value := make([]byte, valueLength)
+	readedValueLength, err := b.Read(value)
+	if err != nil {
+		return 0, err
+	}
+	if readedValueLength != int(valueLength) {
+		return 0, errors.New("value length error")
+	}
+
+	this.Parameter = transportParameterID(parameterID)
+	this.Value = value
+
+	return 4 + int(valueLength), nil
+}
+
 type TransportParameters struct {
 	StreamFlowControlWindow		uint64
 	ConnectionFlowControlWindow	uint64
