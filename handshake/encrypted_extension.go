@@ -13,7 +13,7 @@ type encryptedExtension struct {
 	Parameters			[]TransportParameter
 }
 
-func (this *encryptedExtension) Serialize(b *bytes.Buffer) error {
+func (this encryptedExtension) Serialize(b *bytes.Buffer) error {
 	utils.BigEndian.WriteUInt(b, uint64(this.NegotiatedVersion), 4)
 	
 	svBuffer := bytes.NewBuffer([]byte { })

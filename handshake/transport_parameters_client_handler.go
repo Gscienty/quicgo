@@ -35,6 +35,39 @@ func (this clientHelloTransportParameters) Serialize(b *bytes.Buffer) error {
 	return err
 }
 
+func (this *clientHelloTransportParameters) Parse(b *bytes.Reader) (int, error) {
+	initialVersion, err := utils.BigEndian.ReadUInt(b, 4)
+	if err != nil {
+		return 0, err
+	}
+	parametersSize, err := utils.BigEndian.ReadUInt(b, 2)
+	if err != nil {
+		return 0, err
+	}
+	parametersBuf := make([]byte, parametersSize)
+	_, err = b.Read(parametersBuf)
+	if err != nil {
+		return 0, err
+	}
+	parametersReader := bytes.NewReader(parametersBuf)
+	parameters := []TransportParameter { }
+	var off int = 0
+	for off < int(parametersSize) {
+		parameter := &TransportParameter { }
+		size, err := parameter.Parse(parametersReader)
+		if err != nil {
+			return 0, err
+		}
+		off += size
+		parameters = append(parameters, *parameter)
+	}
+
+	this.InitialVersion = protocol.Version(initialVersion)
+	this.Parameters = parameters
+
+	return int(6 + parametersSize), nil
+}
+
 func transportParameterClientHandlerNew(
 	selfParameters		*TransportParameters,
 	initialVersion		protocol.Version,
@@ -128,4 +161,8 @@ func (this *transportParameterClientHandler) Receive(handshakeType HandshakeType
 
 	this.parametersChan <- *param
 	return nil
+}
+
+func (this *transportParameterClientHandler) GetPeerParams() <-chan TransportParameters {
+	return this.parametersChan
 }
