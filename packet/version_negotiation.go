@@ -76,15 +76,3 @@ func IsSupportedVersion(supported []SupportVersion, version SupportVersion) bool
 	return false
 }
 
-func (this *VersionNegotiationPacket) ChooseSupportedVersion(supportedVersion []SupportVersion) (SupportVersion, bool) {
-	for _, ourVersion := range supportedVersion {
-		for _, theirVersion := range this.supportedVersions {
-			if ourVersion == theirVersion {
-				return ourVersion, true
-			}
-		}
-	}
-
-	return 0, false
-}
-

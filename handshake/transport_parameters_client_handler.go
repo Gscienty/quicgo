@@ -86,5 +86,46 @@ func (this *transportParameterClientHandler) Receive(handshakeType HandshakeType
 		return err
 	}
 
+	serverSupportedVersions := make([]protocol.Version, len(eetp.SupportedVersions))
+	for i, v := range eetp.SupportedVersions {
+		serverSupportedVersions[i] = v
+	}
+
+	if this.version.SupportedVersion(eetp.NegotiatedVersion) {
+		return errors.New("current version dosen't match negotiated_version")
+	}
+
+	if this.version.SupportedVersions(serverSupportedVersions) {
+		return errors.New("current version dosen't match negotiated_version")
+	}
+
+	if this.version != this.initialVersion {
+		negotiatedVersion, ok := protocol.ChooseSupportedVersion(this.supportedVersions, serverSupportedVersions)
+		if ok == false || this.version != negotiatedVersion {
+			return errors.New("current version dosen't match negotiated_version")
+		}
+	}
+
+	var foundStatelessResetToken bool
+	for _, p := range eetp.Parameters {
+		if p.Parameter == statelessResetTokenParameterID {
+			if len(p.Value) != 16 {
+				return errors.New("wrong length stateless_reset_token")
+			}
+			foundStatelessResetToken = true
+			break
+		}
+	}
+
+	if foundStatelessResetToken == false {
+		return errors.New("server didn't sent stateless_reset_token")
+	}
+
+	param, err := transportParameterToTransportParameters(eetp.Parameters)
+	if err != nil {
+		return err
+	}
+
+	this.parametersChan <- *param
 	return nil
 }

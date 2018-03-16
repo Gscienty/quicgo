@@ -8,7 +8,6 @@ import(
 
 type PacketType		uint8
 type ConnectionID	uint64
-type Version		uint32
 type PacketNumber	uint32
 
 const(
