@@ -25,7 +25,7 @@ func AckFrameParse(b *bytes.Reader) (*AckFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_ACK {
+	if FrameType(frameType) != FRAME_TYPE_ACK {
 		return nil, errors.New("AckFrameParse error: frametype not equal 0x0E")
 	}
 
@@ -80,11 +80,16 @@ func AckFrameParse(b *bytes.Reader) (*AckFrame, error) {
 		blocks = append(blocks, AckBlock { smallest, largest })
 	}
 
-	return &AckFrame { Frame { frameType }, *largestAcknowledged, *delay, *blockCount, blocks }, nil
+	return &AckFrame { Frame { FrameType(frameType) }, *largestAcknowledged, *delay, *blockCount, blocks }, nil
 }
 
+func (this *AckFrame) GetType() FrameType {
+	return FRAME_TYPE_ACK
+}
+
+
 func (this *AckFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

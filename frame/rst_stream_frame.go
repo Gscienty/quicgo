@@ -19,7 +19,7 @@ func RstStreamFrameParse(b *bytes.Reader) (*RstStreamFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_RST_STREAM {
+	if FrameType(frameType) != FRAME_TYPE_RST_STREAM {
 		return nil, errors.New("RstStreamFrameParse error: frametype not equal 0x01")
 	}
 
@@ -36,11 +36,15 @@ func RstStreamFrameParse(b *bytes.Reader) (*RstStreamFrame, error) {
 		return nil, err
 	}
 
-	return &RstStreamFrame { Frame { frameType }, *streamID, uint16(errorCode), *finalOffset }, nil
+	return &RstStreamFrame { Frame { FrameType(frameType) }, *streamID, uint16(errorCode), *finalOffset }, nil
+}
+
+func (this *RstStreamFrame) GetType() FrameType {
+	return FRAME_TYPE_RST_STREAM
 }
 
 func (this *RstStreamFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

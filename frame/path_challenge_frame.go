@@ -15,7 +15,7 @@ func PathChallengeFrameParse(b *bytes.Reader) (*PathChallengeFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_PATH_CHALLENGE {
+	if FrameType(frameType) != FRAME_TYPE_PATH_CHALLENGE {
 		return nil, errors.New("PathChallengeFrameParse error: frametype not equal 0x0e")
 	}
 	data, err := b.ReadByte()
@@ -23,11 +23,15 @@ func PathChallengeFrameParse(b *bytes.Reader) (*PathChallengeFrame, error) {
 		return nil, err
 	}
 
-	return &PathChallengeFrame { Frame { frameType }, uint8(data) }, nil
+	return &PathChallengeFrame { Frame { FrameType(frameType) }, uint8(data) }, nil
+}
+
+func (this *PathChallengeFrame) GetType() FrameType {
+	return FRAME_TYPE_PATH_CHALLENGE
 }
 
 func (this *PathChallengeFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

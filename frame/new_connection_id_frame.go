@@ -19,7 +19,7 @@ func NewConnectionIDFrameParse(b *bytes.Reader) (*NewConnectionIDFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_NEW_CONNECTION_ID {
+	if FrameType(frameType) != FRAME_TYPE_NEW_CONNECTION_ID {
 		return nil, errors.New("NewConnectionIDFrameParse error: frametype not equal 0x0B")
 	}
 
@@ -42,11 +42,15 @@ func NewConnectionIDFrameParse(b *bytes.Reader) (*NewConnectionIDFrame, error) {
 		return nil, errors.New("NewConnectionIDFrameParse error: cannot read fully token")
 	}
 
-	return &NewConnectionIDFrame { Frame { frameType }, *sequence, protocol.ConnectionID(connectionID), token }, nil
+	return &NewConnectionIDFrame { Frame { FrameType(frameType) }, *sequence, protocol.ConnectionID(connectionID), token }, nil
+}
+
+func (this *NewConnectionIDFrame) GetType() FrameType {
+	return FRAME_TYPE_NEW_CONNECTION_ID
 }
 
 func (this *NewConnectionIDFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

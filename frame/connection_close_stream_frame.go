@@ -18,7 +18,7 @@ func ConnectionCloseStreamFrameParse(b *bytes.Reader) (*ConnectionCloseStreamFra
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_CONNECTION_CLOSE {
+	if FrameType(frameType) != FRAME_TYPE_CONNECTION_CLOSE {
 		return nil, errors.New("ConnectionCloseStreamFrameParse error: frametype not equal 0x02")
 	}
 
@@ -46,11 +46,15 @@ func ConnectionCloseStreamFrameParse(b *bytes.Reader) (*ConnectionCloseStreamFra
 		return nil, errors.New("ConnectionCloseStreamFrameParse error: reason length error")
 	}
 
-	return &ConnectionCloseStreamFrame { Frame { frameType }, errCode, string(reasonBuf) }, nil
+	return &ConnectionCloseStreamFrame { Frame { FrameType(frameType) }, errCode, string(reasonBuf) }, nil
+}
+
+func (this *ConnectionCloseStreamFrame) GetType() FrameType {
+	return FRAME_TYPE_CONNECTION_CLOSE
 }
 
 func (this *ConnectionCloseStreamFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

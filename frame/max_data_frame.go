@@ -16,7 +16,7 @@ func MaxDataFrameParse(b *bytes.Reader) (*MaxDataFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_MAX_DATA {
+	if FrameType(frameType) != FRAME_TYPE_MAX_DATA {
 		return nil, errors.New("MaxDataFrameParse error: frametype not equal 0x04")
 	}
 
@@ -24,11 +24,15 @@ func MaxDataFrameParse(b *bytes.Reader) (*MaxDataFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &MaxDataFrame { Frame { frameType }, *maximumData }, nil
+	return &MaxDataFrame { Frame { FrameType(frameType) }, *maximumData }, nil
+}
+
+func (this *MaxDataFrame) GetType() FrameType {
+	return FRAME_TYPE_MAX_DATA
 }
 
 func (this *MaxDataFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

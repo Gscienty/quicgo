@@ -18,7 +18,7 @@ func StopSendingFrameParse(b *bytes.Reader) (*StopSendingFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_STOP_SENDING {
+	if FrameType(frameType) != FRAME_TYPE_STOP_SENDING {
 		return nil, errors.New("StopSendingFrameParse error: frametype not equal 0x0C")
 	}
 
@@ -32,11 +32,15 @@ func StopSendingFrameParse(b *bytes.Reader) (*StopSendingFrame, error) {
 		return nil, err
 	}
 
-	return &StopSendingFrame { Frame { frameType }, *streamID, uint16(errorCode) }, nil
+	return &StopSendingFrame { Frame { FrameType(frameType) }, *streamID, uint16(errorCode) }, nil
+}
+
+func (this *StopSendingFrame) GetType() FrameType {
+	return FRAME_TYPE_STOP_SENDING
 }
 
 func (this *StopSendingFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return nil
 	}

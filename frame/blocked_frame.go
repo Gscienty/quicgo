@@ -16,7 +16,7 @@ func BlockedFrameParse(b *bytes.Reader) (*BlockedFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_BLOCKED {
+	if FrameType(frameType) != FRAME_TYPE_BLOCKED {
 		return nil, errors.New("BlockedFrameParse error: frametype not equal 0x08")
 	}
 
@@ -25,11 +25,15 @@ func BlockedFrameParse(b *bytes.Reader) (*BlockedFrame, error) {
 		return nil, err
 	}
 
-	return &BlockedFrame { Frame { frameType }, *offset }, nil
+	return &BlockedFrame { Frame { FrameType(frameType) }, *offset }, nil
+}
+
+func (this *BlockedFrame) GetType() FrameType {
+	return FRAME_TYPE_BLOCKED
 }
 
 func (this *BlockedFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

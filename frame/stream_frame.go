@@ -24,10 +24,10 @@ func StreamFrameParse(b *bytes.Reader) (*StreamFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType & FRAME_TYPE_STREAM != FRAME_TYPE_STREAM {
+	if FrameType(frameType) & FRAME_TYPE_STREAM != FRAME_TYPE_STREAM {
 		return nil, errors.New("StreamFrameParse error: frametype error")
 	}
-	ret.frameType = frameType
+	ret.frameType = FrameType(frameType)
 
 	streamID, err := protocol.StreamIDParse(b)
 	if err != nil {
@@ -35,7 +35,7 @@ func StreamFrameParse(b *bytes.Reader) (*StreamFrame, error) {
 	}
 	ret.streamID = *streamID
 
-	if frameType & FRAME_TYPE_STREAM_OFF == FRAME_TYPE_STREAM_OFF {
+	if ret.frameType & FRAME_TYPE_STREAM_OFF == FRAME_TYPE_STREAM_OFF {
 		offset, err := utils.VarLenIntegerStructParse(b)
 		if err != nil {
 			return nil, err
@@ -43,7 +43,7 @@ func StreamFrameParse(b *bytes.Reader) (*StreamFrame, error) {
 		ret.offset = *offset
 	}
 
-	if frameType & FRAME_TYPE_STREAM_LEN == FRAME_TYPE_STREAM_LEN {
+	if ret.frameType & FRAME_TYPE_STREAM_LEN == FRAME_TYPE_STREAM_LEN {
 		length, err := utils.VarLenIntegerStructParse(b)
 		if err != nil {
 			return nil, err
@@ -63,15 +63,19 @@ func StreamFrameParse(b *bytes.Reader) (*StreamFrame, error) {
 		}
 	}
 
-	if(frameType & FRAME_TYPE_STREAM_FIN != FRAME_TYPE_STREAM_FIN) && len(ret.data) == 0 {
+	if(ret.frameType & FRAME_TYPE_STREAM_FIN != FRAME_TYPE_STREAM_FIN) && len(ret.data) == 0 {
 		return nil, errors.New("StreamFrameParse error: empty stream")
 	}
 
 	return ret, nil
 }
 
+func (this *StreamFrame) GetType() FrameType {
+	return FRAME_TYPE_STREAM
+}
+
 func (this *StreamFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}

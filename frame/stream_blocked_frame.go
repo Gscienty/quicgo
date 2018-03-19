@@ -18,7 +18,7 @@ func StreamBlockedFrameParse(b *bytes.Reader) (*StreamBlockedFrame, error) {
 	if err != nil {
 		return nil, err
 	}
-	if frameType != FRAME_TYPE_STREAM_BLOCKED {
+	if FrameType(frameType) != FRAME_TYPE_STREAM_BLOCKED {
 		return nil, errors.New("StreamBlockedFrameParse error: frametype not equal 0x09")
 	}
 
@@ -32,11 +32,15 @@ func StreamBlockedFrameParse(b *bytes.Reader) (*StreamBlockedFrame, error) {
 		return nil, err
 	}
 
-	return &StreamBlockedFrame { Frame { frameType }, *streamID, *offset }, nil
+	return &StreamBlockedFrame { Frame { FrameType(frameType) }, *streamID, *offset }, nil
+}
+
+func (this *StreamBlockedFrame) GetType() FrameType {
+	return FRAME_TYPE_STREAM_BLOCKED
 }
 
 func (this *StreamBlockedFrame) Serialize(b *bytes.Buffer) error {
-	err := b.WriteByte(this.frameType)
+	err := b.WriteByte(uint8(this.frameType))
 	if err != nil {
 		return err
 	}
