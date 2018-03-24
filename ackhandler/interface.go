@@ -6,7 +6,7 @@ import (
 	"../protocol"
 )
 
-type SentPacketHandler interface {
+type ISentPacketHandler interface {
 	SentPacket(packet *Packet)
 	ReceivedAck(ackFrame *frame.AckFrame, withPacketNumber protocol.PacketNumber, recvTime time.Time) error
 	SetHandshakeComplete()
@@ -23,7 +23,7 @@ type SentPacketHandler interface {
 	OnAlarm()
 }
 
-type ReceivedPacketHandler interface {
+type IReceivedPacketHandler interface {
 	ReceivedPacket(packetNumber protocol.PacketNumber, recvTime time.Time, shouldInstigateAck bool) error
 	IgnoreBelow(protocol.PacketNumber)
 

@@ -7,8 +7,8 @@ import(
 )
 
 type AckBlock struct {
-	first	uint64
-	last	uint64
+	First	uint64
+	Last	uint64
 }
 
 type AckFrame struct {
@@ -109,16 +109,16 @@ func (this *AckFrame) Serialize(b *bytes.Buffer) error {
 		return err
 	}
 
-	utils.VarLenIntegerStructNew(this.largestAcknowledged.GetVal() - this.blocks[0].first).Serialize(b)
-	var lowest uint64 = this.blocks[0].first
+	utils.VarLenIntegerStructNew(this.largestAcknowledged.GetVal() - this.blocks[0].First).Serialize(b)
+	var lowest uint64 = this.blocks[0].First
 	for i, block := range this.blocks {
 		if i == 0 {
 			continue
 		}
 
-		utils.VarLenIntegerStructNew(lowest - block.last - 2).Serialize(b)
-		utils.VarLenIntegerStructNew(block.last - block.first).Serialize(b)
-		lowest = block.first
+		utils.VarLenIntegerStructNew(lowest - block.Last - 2).Serialize(b)
+		utils.VarLenIntegerStructNew(block.Last - block.First).Serialize(b)
+		lowest = block.First
 	}
 	return nil
 }
