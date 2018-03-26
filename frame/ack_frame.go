@@ -1,6 +1,7 @@
 package frame
 
 import(
+	"time"
 	"errors"
 	"../utils"
 	"bytes"
@@ -13,11 +14,13 @@ type AckBlock struct {
 
 type AckFrame struct {
 	Frame
-	largestAcknowledged	utils.VarLenIntegerStruct
+	LargestAcknowledged	utils.VarLenIntegerStruct
+	LowAcknowledged		uint64
+	PacketReceivedTime	time.Time
 	ackDelay			utils.VarLenIntegerStruct
 	ackBlockCount		utils.VarLenIntegerStruct
 
-	blocks				[]AckBlock
+	Blocks				[]AckBlock
 }
 
 func AckFrameParse(b *bytes.Reader) (*AckFrame, error) {
@@ -80,7 +83,7 @@ func AckFrameParse(b *bytes.Reader) (*AckFrame, error) {
 		blocks = append(blocks, AckBlock { smallest, largest })
 	}
 
-	return &AckFrame { Frame { FrameType(frameType) }, *largestAcknowledged, *delay, *blockCount, blocks }, nil
+	return &AckFrame { Frame { FrameType(frameType) }, *largestAcknowledged, smallest, time.Time { }, *delay, *blockCount, blocks }, nil
 }
 
 func (this *AckFrame) GetType() FrameType {
@@ -94,7 +97,7 @@ func (this *AckFrame) Serialize(b *bytes.Buffer) error {
 		return err
 	}
 	
-	_, err = this.largestAcknowledged.Serialize(b)
+	_, err = this.LargestAcknowledged.Serialize(b)
 	if err != nil {
 		return err
 	}
@@ -109,9 +112,9 @@ func (this *AckFrame) Serialize(b *bytes.Buffer) error {
 		return err
 	}
 
-	utils.VarLenIntegerStructNew(this.largestAcknowledged.GetVal() - this.blocks[0].First).Serialize(b)
-	var lowest uint64 = this.blocks[0].First
-	for i, block := range this.blocks {
+	utils.VarLenIntegerStructNew(this.LargestAcknowledged.GetVal() - this.Blocks[0].First).Serialize(b)
+	var lowest uint64 = this.Blocks[0].First
+	for i, block := range this.Blocks {
 		if i == 0 {
 			continue
 		}
@@ -121,4 +124,25 @@ func (this *AckFrame) Serialize(b *bytes.Buffer) error {
 		lowest = block.First
 	}
 	return nil
+}
+
+func (this *AckFrame) HasMissingRanges() bool {
+	return len(this.Blocks) > 0
+}
+
+func (this *AckFrame) AcksPacket(p uint64) bool {
+	if p < this.LowAcknowledged || p > this.LargestAcknowledged.GetVal() {
+		return false
+	}
+
+	if this.HasMissingRanges() {
+		for _, block := range this.Blocks {
+			if block.First <= p && p <= block.Last {
+				return true
+			}
+		}
+		return false
+	}
+
+	return (this.LowAcknowledged <= p && p <= this.LargestAcknowledged.GetVal())
 }
